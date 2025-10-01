@@ -1,0 +1,18 @@
+Please get your free API key here:
+    https://www.alphavantage.co/support/#api-key
+
+AV API DOCS:
+    https://www.alphavantage.co/documentation/
+
+    (Highly recommend reading the docs a bit.
+     They're easy to understand and help make sense
+     of the requests we're making.)
+
+
+
+List your API key here, we'll develop a way to
+automatically switch between them once one runs
+out of requests:
+
+JD API Key:
+    MMK62Q0AQU1ENXDT
