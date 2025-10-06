@@ -19,3 +19,6 @@ JD API Key:
 
 Clara's API Key:
     AUSEOLC1G85GIX8O
+
+Luis' API Key:
+    MF3H2GPW27Q25Y6D
