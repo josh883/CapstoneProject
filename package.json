@@ -1,0 +1,13 @@
+{
+    "name": "CapstoneProject",
+    "private": true,
+    "scripts": {
+        "setup": "bash scripts/setup.sh",
+        "dev:web": "npm --prefix web run dev",
+        "dev:api": "./capstone_venv/bin/python -m uvicorn server.main:app --reload --port 8000",
+        "dev": "concurrently -k -n WEB,API -c auto \"npm run dev:web\" \"npm run dev:api\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}

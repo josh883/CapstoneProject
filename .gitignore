@@ -1,3 +1,44 @@
+node_modules/
+__pycache__/
+
+# dependencies (Next.js app)
+web/node_modules
+web/.pnp
+web/.pnp.*
+web/.yarn/*
+!web/.yarn/patches
+!web/.yarn/plugins
+!web/.yarn/releases
+!web/.yarn/versions
+
+# testing (Next.js app)
+web/coverage
+
+# next.js build artifacts
+web/.next/
+web/out/
+
+# production build
+web/build
+
+# vercel
+web/.vercel
+
+# debug logs (scoped to Next.js app)
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/.pnpm-debug.log*
+
+# typescript (if we enable TS later)
+web/*.tsbuildinfo
+web/next-env.d.ts
+
+# misc (project-wide)
+.DS_Store
+*.pem
+
+# your other project-specific ignores
 capstone_venv/
 capstone/node_modules/
 capstone/*.json
