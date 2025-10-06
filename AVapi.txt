@@ -16,3 +16,6 @@ out of requests:
 
 JD API Key:
     MMK62Q0AQU1ENXDT
+
+Clara's API Key:
+    AUSEOLC1G85GIX8O
