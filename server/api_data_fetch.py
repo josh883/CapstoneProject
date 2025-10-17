@@ -5,6 +5,7 @@ import os
 import requests
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
+import sqlite3
 
 API_KEY = os.getenv("ALPHAVANTAGE_API_KEY", "MMK62Q0AQU1ENXDT") # hardcoded to use my api key for now, we can fix later
 

@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
-from .api_data_fetch import get_prices
+from server.auth import router as auth_router
+from server.database import init_db
+from server.api_data_fetch import get_prices
 
 app = FastAPI()
 
@@ -9,9 +11,16 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
-    allow_methods=["GET"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize database on startup
+@app.on_event("startup")
+def startup_event():
+    init_db()
+
+app.include_router(auth_router)
 
 def json_safe(d):
     meta, rows = d["meta"], d["rows"]

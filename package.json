@@ -2,6 +2,7 @@
     "name": "CapstoneProject",
     "private": true,
     "scripts": {
+        "check:node": "node -e \"const v=parseInt(process.versions.node.split('.')[0]); if(v<18){console.error('❌ Node 18+ required. Current:',process.versions.node); process.exit(1)}\"",
         "setup": "bash scripts/setup.sh",
         "dev:web": "npm --prefix web run dev",
         "dev:api": "./capstone_venv/bin/python -m uvicorn server.main:app --reload --port 8000",
@@ -9,5 +10,9 @@
     },
     "devDependencies": {
         "concurrently": "^9.2.1"
+    },
+    "engines": {
+        "node": ">=18.18.0"
     }
+
 }
