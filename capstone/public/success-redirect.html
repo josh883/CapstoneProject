@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Add CSS for your graphic here (e.g., a checkmark or loading spinner) */
+        .success-container {
+            text-align: center;
+            padding: 50px;
+        }
+        .success-icon {
+            font-size: 80px;
+            color: green;
+            animation: pulse 1.5s infinite; /* Example animation */
+        }
+        @keyframes pulse { 0% { transform: scale(0.9); } 70% { transform: scale(1.1); } 100% { transform: scale(0.9); } }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h1>Success! Redirecting...</h1>
+        <p>Your action was completed successfully. Please wait.</p>
+    </div>
+
+    <script>
+        // JavaScript to redirect after 2 seconds (2000 milliseconds)
+        setTimeout(function() {
+            // Read the target from the URL query parameter (explained below)
+            const params = new URLSearchParams(window.location.search);
+            const target = params.get('to') || '/dashboard.html'; // Default to dashboard
+
+            window.location.href = target;
+        }, 2000); 
+    </script>
+</body>
+</html>

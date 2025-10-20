@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pennysWorth-notes</title>
+    <style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#94a3b8;
+    --accent:#7c3aed;
+    --accent-2:#06b6d4;
+    --text:#e6eef8;
+    --glass: rgba(255,255,255,0.03);
+    --radius:12px;
+    --gap:12px;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; color:var(--text); background:linear-gradient(180deg,#071026 0%, #07132a 60%); -webkit-font-smoothing:antialiased;}
+  .app{
+    max-width:1100px;
+    margin:28px auto;
+    padding:18px;
+    display:grid;
+    grid-template-columns: 320px 1fr;
+    gap:20px;
+  }
+
+  /* Sidebar */
+  .sidebar{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--radius);
+    padding:14px;
+    min-height:420px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .header{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .brand{
+    display:flex;
+    flex-direction:column;
+    line-height:1;
+  }
+  .brand h1{margin:0;font-size:16px}
+  .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.04);
+    color:var(--text);
+    padding:8px 10px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+  }
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; border:none; box-shadow: 0 6px 18px rgba(124,58,237,0.15)}
+  .search{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-top:6px;
+  }
+  .search input{
+    width:100%;
+    padding:8px 10px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:8px;
+    color:var(--text);
+  }
+
+  /* notes list */
+  .notes-list{
+    margin-top:8px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow:auto;
+    padding-right:6px;
+  }
+  .note-item{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border-radius:10px;
+    padding:10px;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .note-item:hover{ transform: translateY(-2px); }
+  .note-title{ font-weight:600; font-size:14px; margin-bottom:4px; }
+  .note-body{ font-size:13px; color:var(--muted); max-height:36px; overflow:hidden; text-overflow:ellipsis; }
+  .note-meta{ margin-left:auto; text-align:right; font-size:12px; color:var(--muted) }
+  .tag{ font-size:11px; padding:4px 6px; border-radius:8px; background:rgba(255,255,255,0.02); margin-right:6px; }
+
+  /* editor */
+  .editor{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--radius);
+    padding:18px;
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+  }
+  .editor-top{display:flex;gap:8px;align-items:center;}
+  .title-input{
+    font-size:20px;
+    font-weight:600;
+    background:transparent;
+    color:var(--text);
+    border:none;
+    outline:none;
+    flex:1;
+  }
+  .meta-row{display:flex;gap:8px;align-items:center;color:var(--muted); font-size:13px;}
+  .tags-input{padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
+  textarea.body{
+    width:100%;
+    min-height:260px;
+    resize:vertical;
+    padding:12px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.03);
+    border-radius:10px;
+    color:var(--text);
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  .editor-actions{display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .left-actions{display:flex;gap:8px;align-items:center}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* footer */
+  .footer{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+
+  /* responsive */
+  @media (max-width:880px){
+    .app{grid-template-columns: 1fr; padding:12px}
+    .sidebar{order:2}
+    .editor{order:1}
+  }
+</style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/capstone/stock_calculation/format.html">Home</a>
+        <a href="https://www.investors.com/market-trend/stock-market-today/stock-market-today/">News</a>
+        <a href="/about.html">About</a>
+        <a href="/stock_search.html">Stonks</a>
+        <a href="/index.html">logout</a>
+    </div>
+    
+    <h1>Notes Page</h1>
+    <p>This is the notes page for PennysWorth. </p>
+
+
+
+      <main class="app" aria-live="polite">
+    <aside class="sidebar" aria-label="Notes sidebar">
+      <div class="header">
+        <div class="brand" aria-hidden="true">
+          <h1>My Notes</h1>
+          <p>Local • Private • Fast</p>
+        </div>
+      </div>
+
+      <div class="controls" role="toolbar" aria-label="Main controls">
+        <button class="btn primary" id="newNoteBtn" title="New note (Ctrl/Cmd+N)">+ New</button>
+        <button class="btn" id="exportBtn" title="Export all notes as JSON">Export</button>
+        <button class="btn" id="importBtn" title="Import notes (JSON)">Import</button>
+        <button class="btn" id="clearBtn" title="Clear all notes">Clear</button>
+      </div>
+
+      <div class="search" role="search">
+        <input id="searchInput" placeholder="Search title, body, or tag..." aria-label="Search notes">
+      </div>
+
+      <div class="notes-list" id="notesList" tabindex="0" aria-label="Saved notes list">
+        <!-- note items injected here -->
+      </div>
+
+      <div class="footer">
+        Tip: use <kbd>Ctrl/Cmd+N</kbd> for new note and <kbd>Ctrl/Cmd+S</kbd> to save.
+      </div>
+    </aside>
+
+    <section class="editor" aria-label="Note editor">
+      <div class="editor-top">
+        <input id="titleInput" class="title-input" placeholder="New note title..." aria-label="Note title">
+        <div class="meta-row small" id="metaRow">No note selected</div>
+      </div>
+
+      <div>
+        <input id="tagsInput" class="tags-input" placeholder="tags (comma separated)" aria-label="Tags input">
+      </div>
+
+      <textarea id="bodyInput" class="body" placeholder="Write your note here..." aria-label="Note body"></textarea>
+
+      <div class="editor-actions">
+        <div class="left-actions">
+          <button class="btn primary" id="saveBtn">Save</button>
+          <button class="btn" id="deleteBtn">Delete</button>
+          <button class="btn" id="pinBtn">Pin</button>
+        </div>
+        <div>
+          <span class="small" id="lastSaved">—</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+/*
+  Simple Notes App
+  Data model:
+    notes: [{id, title, body, tags:[], pinned:bool, updated}]
+  Persistence: localStorage key "my_notes_app_v1"
+*/
+
+// Utilities
+const uid = ()=>crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,9);
+const humanDate = ts => new Date(ts).toLocaleString();
+
+const STORAGE_KEY = 'my_notes_app_v1';
+
+// State
+let notes = [];
+let activeId = null;
+
+// Elements
+const notesList = document.getElementById('notesList');
+const titleInput = document.getElementById('titleInput');
+const bodyInput = document.getElementById('bodyInput');
+const tagsInput = document.getElementById('tagsInput');
+const metaRow = document.getElementById('metaRow');
+const lastSaved = document.getElementById('lastSaved');
+
+const newNoteBtn = document.getElementById('newNoteBtn');
+const saveBtn = document.getElementById('saveBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+const pinBtn = document.getElementById('pinBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const clearBtn = document.getElementById('clearBtn');
+const searchInput = document.getElementById('searchInput');
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    notes = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    notes = [];
+  }
+  renderNotes();
+}
+
+// Save all notes to storage
+function persist(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+// Render notes list
+function renderNotes(filterText=''){
+  // sort: pinned first, then updated desc
+  const filtered = notes
+    .filter(n=>{
+      if(!filterText) return true;
+      const q = filterText.toLowerCase();
+      return (n.title||'').toLowerCase().includes(q) ||
+             (n.body||'').toLowerCase().includes(q) ||
+             (n.tags||[]).join(' ').toLowerCase().includes(q);
+    })
+    .sort((a,b)=>{
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return b.updated - a.updated;
+    });
+
+  notesList.innerHTML = '';
+  if(filtered.length === 0){
+    notesList.innerHTML = '<div style="color:var(--muted);padding:8px">No notes yet — create one!</div>';
+    return;
+  }
+
+  for(const n of filtered){
+    const item = document.createElement('div');
+    item.className = 'note-item';
+    item.dataset.id = n.id;
+    item.tabIndex = 0;
+    item.innerHTML = `
+      <div style="flex:1">
+        <div class="note-title">${escapeHtml(n.title || 'Untitled')}</div>
+        <div class="note-body">${escapeHtml((n.body || '').replace(/\\n/g,' '))}</div>
+        <div style="margin-top:8px">
+          ${(n.tags||[]).slice(0,3).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+      <div class="note-meta">
+        ${n.pinned? '📌':''}<div style="margin-top:6px">${humanDate(n.updated)}</div>
+      </div>
+    `;
+    item.addEventListener('click', ()=>openNote(n.id));
+    item.addEventListener('keydown', (e)=> { if(e.key === 'Enter') openNote(n.id); });
+    notesList.appendChild(item);
+  }
+}
+
+function escapeHtml(s){
+  return (''+s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
+
+function openNote(id){
+  const n = notes.find(x=>x.id===id);
+  if(!n) return;
+  activeId = id;
+  titleInput.value = n.title || '';
+  bodyInput.value = n.body || '';
+  tagsInput.value = (n.tags||[]).join(', ');
+  metaRow.textContent = `${n.pinned ? 'Pinned • ' : ''}Last updated: ${humanDate(n.updated)}`;
+  lastSaved.textContent = 'Saved';
+  pinBtn.textContent = n.pinned ? 'Unpin' : 'Pin';
+  // focus editor body for quick edit
+  bodyInput.focus();
+}
+
+function clearEditor(){
+  activeId = null;
+  titleInput.value = '';
+  bodyInput.value = '';
+  tagsInput.value = '';
+  metaRow.textContent = 'No note selected';
+  lastSaved.textContent = '—';
+  pinBtn.textContent = 'Pin';
+}
+
+// Create new note
+function createNew(){
+  const n = {
+    id: uid(),
+    title: '',
+    body: '',
+    tags: [],
+    pinned: false,
+    updated: Date.now()
+  };
+  notes.push(n);
+  persist();
+  renderNotes(searchInput.value.trim());
+  openNote(n.id);
+}
+
+// Save current note (create if none active)
+function saveCurrent(){
+  const title = titleInput.value.trim();
+  const body = bodyInput.value;
+  const tags = tagsInput.value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!activeId){
+    // create
+    const n = {
+      id: uid(),
+      title, body, tags, pinned: false, updated: Date.now()
+    };
+    notes.push(n);
+    activeId = n.id;
+  } else {
+    const n = notes.find(x=>x.id===activeId);
+    if(!n) return;
+    n.title = title;
+    n.body = body;
+    n.tags = tags;
+    n.updated = Date.now();
+  }
+  persist();
+  renderNotes(searchInput.value.trim());
+  lastSaved.textContent = 'Saved ' + new Date().toLocaleTimeString();
+}
+
+// Delete
+function deleteCurrent(){
+  if(!activeId) return;
+  if(!confirm('Delete this note?')) return;
+  notes = notes.filter(n=>n.id !== activeId);
+  persist();
+  renderNotes(searchInput.value.trim());
+  clearEditor();
+}
+
+// Pin/unpin
+function togglePin(){
+  if(!activeId) return;
+  const n = notes.find(x=>x.id===activeId);
+  if(!n) return;
+  n.pinned = !n.pinned;
+  n.updated = Date.now();
+  persist();
+  renderNotes(searchInput.value.trim());
+  openNote(n.id);
+}
+
+// Export
+function exportNotes(){
+  const dataStr = JSON.stringify(notes, null, 2);
+  const blob = new Blob([dataStr], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'notes-export.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Import
+function importNotes(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        if(!Array.isArray(parsed)) throw new Error('Invalid format');
+        // Basic validation and normalize
+        const normalized = parsed.map(p=>({
+          id: p.id || uid(),
+          title: p.title || '',
+          body: p.body || '',
+          tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? p.tags.split(',').map(s=>s.trim()).filter(Boolean) : []),
+          pinned: !!p.pinned,
+          updated: p.updated ? Number(p.updated) : Date.now()
+        }));
+        // merge: keep existing and new, avoid duplicate ids
+        const existingIds = new Set(notes.map(n=>n.id));
+        for(const n of normalized){
+          if(existingIds.has(n.id)){
+            // give new id to avoid collision
+            n.id = uid();
+          }
+          notes.push(n);
+        }
+        persist();
+        renderNotes();
+        alert('Imported ' + normalized.length + ' notes.');
+      }catch(err){
+        alert('Import failed: ' + err.message);
+      }
+    };
+    reader.readAsText(f);
+  };
+  input.click();
+}
+
+// Clear all notes
+function clearAll(){
+  if(!confirm('Clear ALL notes? This cannot be undone.')) return;
+  notes = [];
+  persist();
+  renderNotes();
+  clearEditor();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e=>{
+  const meta = navigator.platform.includes('Mac') ? e.metaKey : e.ctrlKey;
+  if(meta && e.key.toLowerCase() === 'n'){
+    e.preventDefault();
+    createNew();
+  }
+  if(meta && e.key.toLowerCase() === 's'){
+    e.preventDefault();
+    saveCurrent();
+  }
+});
+
+// Auto-save on blur or change (small debounce)
+let autosaveTimer = null;
+[titleInput, bodyInput, tagsInput].forEach(el=>{
+  el.addEventListener('input', ()=>{
+    lastSaved.textContent = 'Unsaved';
+    if(autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(()=> {
+      // only auto-save if there's content or activeId exists
+      if(titleInput.value.trim() || bodyInput.value.trim() || activeId){
+        saveCurrent();
+      }
+    }, 1200);
+  });
+});
+bodyInput.addEventListener('blur', ()=> saveCurrent());
+
+// Search
+searchInput.addEventListener('input', ()=> renderNotes(searchInput.value.trim()));
+
+// Buttons
+newNoteBtn.addEventListener('click', createNew);
+saveBtn.addEventListener('click', saveCurrent);
+deleteBtn.addEventListener('click', deleteCurrent);
+pinBtn.addEventListener('click', togglePin);
+exportBtn.addEventListener('click', exportNotes);
+importBtn.addEventListener('click', importNotes);
+clearBtn.addEventListener('click', clearAll);
+
+// Initialize with sample if empty
+function seedIfEmpty(){
+  if(notes.length === 0){
+    notes.push({
+      id: uid(),
+      title: 'Welcome — your notes live in this browser',
+      body: 'This is a local notes app: everything is stored in your browser (localStorage). Use the buttons to create, save, pin, export, or import notes. Keyboard shortcuts: Ctrl/Cmd+N = new note, Ctrl/Cmd+S = save.',
+      tags: ['welcome','local'],
+      pinned: true,
+      updated: Date.now()
+    });
+    persist();
+  }
+}
+
+load();
+seedIfEmpty();
+renderNotes();
+
+// helpers for demo safety
+function debugLog(){
+  console.log('NOTE COUNT', notes.length);
+}
+</script>
+
+
+
+
+
+
+
+
+       
+    
+</body>
+</html>

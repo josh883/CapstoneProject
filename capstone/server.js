@@ -1,97 +1,202 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
-const path = require('path');
+const { spawn } = require('child_process');
 
 const app = express();
-const port = 3000;
-const saltRounds = 10; // Standard salt rounds for bcrypt
+const PORT = 3000;
+const dbPath = path.join(__dirname, 'users.db');
 
-// Connect to or create the SQLite database
-const db = new sqlite3.Database('./users.db', (err) => {
-    if (err) {
-        console.error(err.message);
-    }
-    console.log('Connected to the SQLite database.');
-});
-
-// Create the users table if it doesn't exist
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-    )`);
-});
-
-// Middleware
-app.use(express.static('public'));
+// Set up middleware
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Registration route
-app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+// --- DATABASE SETUP ---
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('Error opening database:', err.message);
+    } else {
+        console.log('Connected to the SQLite database.');
+        // Create users table if it doesn't exist
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            username TEXT UNIQUE,
+            password TEXT
+        )`, (err) => {
+            if (err) {
+                console.error('Error creating users table:', err.message);
+            }
+        });
+    }
+});
 
-    if (!username || !email || !password) {
-        return res.status(400).send('<h1>Registration Failed</h1><p>All fields are required.</p>');
+// --- AUTHENTICATION ROUTES ---
+
+// Registration Route
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).send({ error: "Username and password are required." });
     }
 
     try {
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-        // Insert the new user into the database
-        const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        stmt.run(username, email, hashedPassword, function(err) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hashedPassword], function(err) {
             if (err) {
-                // Handle duplicate username/email
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    return res.status(409).send('<h1>Registration Failed</h1><p>Username or Email already exists.</p>');
-                }
-                return res.status(500).send('<h1>Registration Failed</h1><p>An internal server error occurred.</p>');
+                // Unique constraint failed
+                console.error(`[REGISTER] Error: ${err.message}`);
+                return res.status(409).send({ error: "Username already exists." });
             }
-            console.log(`User ${username} registered with ID: ${this.lastID}`);
-            res.status(201).send('<h1>Registration Successful!</h1><p>You can now log in.</p><a href="/login.html">Go to Login</a>');
+            res.status(201).send({ message: "User registered successfully!" });
         });
-        stmt.finalize();
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('<h1>Registration Failed</h1><p>An internal server error occurred.</p>');
+    } catch (e) {
+        console.error(`[REGISTER] Hashing error: ${e}`);
+        res.status(500).send({ error: "Server error during registration." });
     }
 });
 
-// Login route (updated to use the database)
-app.post('/login', (req, res) => {
+// Login Route
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log(`[LOGIN] Attempt for user: ${username}`);
 
     db.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
+        
         if (err) {
-            return res.status(500).send('<h1>Login Failed</h1><p>An internal server error occurred.</p>');
+            console.error('[LOGIN] DB Query Error:', err);
+            return res.status(500).send({ error: "Database error during login." });
         }
+        
         if (!user) {
-            // User not found
-            return res.status(401).send('<h1>Login Failed</h1><p>Invalid username or password.</p>');
+            console.log('[LOGIN] User not found.');
+            return res.status(401).send({ error: "Invalid username or password." });
         }
+        
+        console.log('[LOGIN] User found: true');
 
         try {
-            // Compare the provided password with the hashed password in the database
             const match = await bcrypt.compare(password, user.password);
-            
+
             if (match) {
-                res.redirect('/dashboard.html');
+                console.log('[LOGIN] Password match: true. Login successful.');
+                // NOTE: In a real app, you would issue a JWT token here.
+                // FIX: Redirect the user to the main app page instead of sending raw JSON.
+                res.redirect('/stock_search.html');
             } else {
-                res.status(401).send('<h1>Login Failed</h1><p>Invalid username or password.</p>');
+                console.log('[LOGIN] Password match: false.');
+                res.status(401).send({ error: "Invalid username or password." });
             }
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('<h1>Login Failed</h1><p>An internal server error occurred.</p>');
+        } catch (e) {
+            console.error(`[LOGIN] bcrypt error: ${e}`);
+            res.status(500).send({ error: "Server error during password comparison." });
         }
     });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+// --- STOCK DATA & SENTIMENT ROUTES ---
+
+// Main API Route to Fetch Stock Data AND Determine Sentiment
+app.get('/api/stock', (req, res) => {
+    const symbol = req.query.symbol;
+    if (!symbol) {
+        return res.status(400).send({ error: "Stock symbol is required." });
+    }
+
+    // Define paths for both Python scripts
+    const pythonDataScriptPath = path.join(__dirname, 'api_data_fetch.py');
+    const pythonSentimentScriptPath = path.join(__dirname, 'stock_sentiment_predictor.py');
+    
+    // --- STEP 1: Execute Data Fetcher (api_data_fetch.py) ---
+    // CHANGED: Using 'python' instead of 'python3' for better Windows compatibility
+    const dataFetcher = spawn('python', [pythonDataScriptPath, symbol]);
+    let rawStockData = '';
+    let dataFetcherError = '';
+
+    dataFetcher.stdout.on('data', (data) => {
+        rawStockData += data.toString();
+    });
+
+    dataFetcher.stderr.on('data', (data) => {
+        dataFetcherError += data.toString();
+    });
+
+    dataFetcher.on('close', (code) => {
+        if (code !== 0) {
+            console.error(`[STOCK] Data Fetcher exited with code ${code}. Stderr: ${dataFetcherError}`);
+            return res.status(500).send({ 
+                error: "Failed to fetch stock data (Python script failed or API limit reached).",
+                details: dataFetcherError
+            });
+        }
+        
+        // --- STEP 2: Parse and Process Data ---
+        let stockDataJson;
+        try {
+            stockDataJson = JSON.parse(rawStockData);
+        } catch (e) {
+            console.error(`[STOCK] Error parsing stock data JSON: ${e.message}. Raw output: ${rawStockData.substring(0, 100)}...`);
+            return res.status(500).send({ error: "Failed to parse stock data from Python." });
+        }
+
+        // Check if AlphaVantage returned an error (e.g., invalid symbol or rate limit)
+        if (stockDataJson.error) {
+             console.log(`[STOCK] AlphaVantage reported error: ${stockDataJson.error}`);
+            return res.status(404).send({ error: stockDataJson.error });
+        }
+        
+        // --- STEP 3: Execute Sentiment Predictor (stock_sentiment_predictor.py) ---
+        // CHANGED: Using 'python' instead of 'python3' for better Windows compatibility
+        const sentimentPredictor = spawn('python', [pythonSentimentScriptPath]);
+        let sentimentResult = '';
+        let sentimentError = '';
+        
+        sentimentPredictor.stdout.on('data', (data) => {
+            sentimentResult += data.toString();
+        });
+
+        sentimentPredictor.stderr.on('data', (data) => {
+            sentimentError += data.toString();
+        });
+
+        sentimentPredictor.on('close', (sentimentCode) => {
+            if (sentimentCode !== 0) {
+                console.error(`[SENTIMENT] Predictor exited with code ${sentimentCode}. Stderr: ${sentimentError}`);
+                // If sentiment fails, still return the stock data, but mark sentiment as error
+                stockDataJson.sentiment = { 
+                    prediction: "Error", 
+                    message: "Sentiment analysis failed to run."
+                };
+            } else {
+                try {
+                    // Attach the sentiment result to the main stock data object
+                    const sentimentJson = JSON.parse(sentimentResult);
+                    stockDataJson.sentiment = sentimentJson;
+                } catch (e) {
+                    console.error(`[SENTIMENT] Error parsing sentiment JSON: ${e.message}`);
+                    stockDataJson.sentiment = { 
+                        prediction: "Error", 
+                        message: "Failed to parse sentiment result." 
+                    };
+                }
+            }
+
+            // --- STEP 4: Send combined result back to the frontend ---
+            res.json(stockDataJson);
+        });
+        
+        // Write the stock data (as a string) to the sentiment predictor's stdin
+        sentimentPredictor.stdin.write(JSON.stringify(stockDataJson));
+        sentimentPredictor.stdin.end();
+    });
+});
+
+
+// --- SERVER STARTUP ---
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Login page: http://localhost:${PORT}/login.html`);
+    console.log(`Stock Search page: http://localhost:${PORT}/stock_search.html`);
 });
