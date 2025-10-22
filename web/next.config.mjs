@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    reactStrictMode: false, // dev only: prevents double invoke of RSC/render
+  };
+  export default nextConfig;

@@ -4,6 +4,7 @@ from typing import Optional
 from server.auth import router as auth_router
 from server.database import init_db
 from server.api_data_fetch import get_prices
+from server.api_news_fetch import get_news
 
 app = FastAPI()
 
@@ -44,3 +45,7 @@ def prices(
         return json_safe(data)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/news")
+def news(ticker: str = Query(None)):
+    return {"articles": get_news(ticker)}
