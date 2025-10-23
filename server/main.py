@@ -8,10 +8,16 @@ from server.api_news_fetch import get_news
 
 app = FastAPI()
 
-# to allow rqsts from our dev server
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://172.24.141.32:3000",  # your network IP
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

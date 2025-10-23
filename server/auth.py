@@ -5,7 +5,7 @@ import bcrypt
 from typing import Optional
 
 router = APIRouter()
-DB_PATH = "server/users.db"
+DB_PATH = "users.db"
 
 class User(BaseModel):
     username: str
