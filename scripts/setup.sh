@@ -34,6 +34,10 @@ if [ -f package-lock.json ]; then
 else
   npm install
 fi
+
+npm install lucide-react # Install lucide-react as a dependency
+
+
 cd ..
 
 echo "✅ Backend and Frontend setup complete."
