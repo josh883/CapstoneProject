@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -13,6 +15,21 @@ origins = [
     "http://127.0.0.1:3000",
     "http://172.24.141.32:3000",  # your network IP
 ]
+
+extra_origins = os.getenv("FRONTEND_ORIGINS", "")
+if extra_origins:
+    origins.extend(
+        origin.strip()
+        for origin in extra_origins.split(",")
+        if origin.strip() and origin.strip() not in origins
+    )
+
+# Ensure current host IP (common on Wi-Fi) is allowed if set in env or list
+default_host = os.getenv("HOST_IP")
+if default_host:
+    candidate = f"http://{default_host}:3000"
+    if candidate not in origins:
+        origins.append(candidate)
 
 app.add_middleware(
     CORSMiddleware,

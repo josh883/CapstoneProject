@@ -1,7 +1,7 @@
 set -euo pipefail
 [ -f "server/requirements.txt" ] || { echo "Run from repo root"; exit 1; }
 
-# --- 1. Node.js Version Check ---
+# --- Node.js version check ---
 MIN_MAJOR_VERSION=18
 CURRENT_NODE_VERSION=$(node -v | sed 's/v//g' | awk -F'.' '{print $1}')
 
@@ -15,12 +15,48 @@ else
   echo "✅ Node.js v$CURRENT_NODE_VERSION.x.x detected."
 fi
 
-# --- 2. Python Virtual Environment ---
-python3 -m venv capstone_venv
-./capstone_venv/bin/python -m pip install --upgrade pip
-./capstone_venv/bin/pip install -r server/requirements.txt
+# --- 1b. Environment file ---
+if [ -f ".env" ]; then
+  echo "Found existing .env"
+elif [ -f ".env.example" ]; then
+  cp .env.example .env
+  echo "Created .env from .env.example (update DATABASE_URL if needed)"
+else
+  echo "⚠️ No .env or .env.example found. Create .env with DATABASE_URL before running the API."
+fi
 
-# --- 3. Install Root Node Deps ---
+# --- 2. Python Virtual Environment ---
+PYTHON_BIN=""
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "❌ ERROR: Python 3 not found, install Python 3.8+ and retry"
+  exit 1
+fi
+
+VENV_DIR="capstone_venv"
+if [ ! -d "$VENV_DIR" ]; then
+  echo "creating Python virtual environment ($VENV_DIR)"
+  "$PYTHON_BIN" -m venv "$VENV_DIR"
+else
+  echo "reusing existing virtual environment ($VENV_DIR)"
+fi
+
+VENV_PY="./$VENV_DIR/bin/python"
+VENV_PIP="./$VENV_DIR/bin/pip"
+
+if [ ! -x "$VENV_PIP" ]; then
+  echo "❌ ERROR: pip not found in virtualenv ($VENV_PIP)."
+  exit 1
+fi
+
+"$VENV_PY" -m pip install --upgrade pip
+echo "Installing Python reqs"
+"$VENV_PIP" install -r server/requirements.txt
+
+# --- install root node deps ---
 if [ -f package-lock.json ]; then
   npm ci
 else
@@ -35,9 +71,9 @@ else
   npm install
 fi
 
-npm install lucide-react # Install lucide-react as a dependency
+npm install lucide-react # install lucide react as a dependency
 
 
 cd ..
 
-echo "✅ Backend and Frontend setup complete."
+echo "✅ backend and frontend setup complete"
