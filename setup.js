@@ -73,9 +73,10 @@ if (exist(envFile)) {
   console.warn("⚠️ No .env or .env.example found. Create .env with DATABASE_URL before running the API.");
 }
 
-const python = which("python") || which("python3");
+// Prefer python3 on mac/linux to avoid Python 2
+const python = which("python3") || which("python");
 if (!python) {
-  console.error("Python not found. Install Python 3.8+ and ensure 'python' or 'python3' is on PATH.");
+  console.error("Python not found. Install Python 3.8+ and ensure 'python3' or 'python' is on PATH.");
   process.exit(1);
 }
 

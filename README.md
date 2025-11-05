@@ -3,7 +3,7 @@ Senior project
 
 ## Prerequisites
 Install these once:
-- **Node.js 18+ (Node 20 recommended)** – macOS/Linux: download the installer or use nvm; Windows: installer at `https://nodejs.org/en/download/prebuilt-installer` (npm ships with Node)
+- **Node.js 18+ (Node 20 recommended)** – macOS/Linux: download the installer or 'nvm use|install 20'; Windows: installer at `https://nodejs.org/en/download/prebuilt-installer` (npm ships with Node)
 - **Python 3.8+** – macOS already has Python 3; Windows: install from `https://www.python.org/downloads/`
 - **PostgreSQL 13+** – macOS: `brew install postgresql@14` or Postgres.app, Windows: use EnterpriseDB installer (includes pgAdmin and `psql`)
 

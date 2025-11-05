@@ -1,4 +1,4 @@
-.dashboard-container {
+.stock-dashboard-container {
   display: grid;
   grid-template-columns: 18% 1fr 22%;
   height: 100vh;
@@ -12,22 +12,21 @@
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-.main-content {
+.stock-main-content {
   display: flex;
   flex-direction: column;
   gap: 28px;
   overflow: hidden;
 }
 
-.right-panel {
+.stock-right-panel {
   display: flex;
   flex-direction: column;
   gap: 28px;
   overflow: hidden;
 }
 
-/* make only news scroll */
-.right-panel > :last-child {
+.stock-right-panel > :last-child {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -37,27 +36,24 @@
 /* ------------------------------
    Dark Mode Compatibility
 ------------------------------ */
-html.dark .dashboard-container {
+html.dark .stock-dashboard-container {
   background-color: var(--color-background);
   color: var(--color-text-primary);
 }
 
-html.dark .main-content,
-html.dark .right-panel {
+html.dark .stock-main-content,
+html.dark .stock-right-panel {
   background-color: transparent;
 }
 
-/* ------------------------------
-   Responsive Behavior
------------------------------- */
 @media (max-width: 1280px) {
-  .dashboard-container {
+  .stock-dashboard-container {
     grid-template-columns: 20% 1fr 25%;
   }
 }
 
 @media (max-width: 1024px) {
-  .dashboard-container {
+  .stock-dashboard-container {
     grid-template-columns: 100%;
     grid-template-rows: auto auto auto;
     height: auto;
@@ -65,11 +61,11 @@ html.dark .right-panel {
     overflow-y: auto;
   }
 
-  .main-content {
+  .stock-main-content {
     order: 2;
   }
 
-  .right-panel {
+  .stock-right-panel {
     order: 3;
     flex-direction: row;
     flex-wrap: wrap;
@@ -77,7 +73,7 @@ html.dark .right-panel {
     overflow: visible;
   }
 
-  .right-panel > * {
+  .stock-right-panel > * {
     flex: 1 1 48%;
     min-width: 320px;
   }

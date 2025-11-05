@@ -2,10 +2,22 @@
 import "./Sidebar.css";
 import { useRouter, usePathname } from "next/navigation";
 import { Home, Eye, Briefcase, Settings, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const [isDark, setIsDark] = useState(false);
+
+  // Detects dark mode automatically
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    setIsDark(document.documentElement.classList.contains("dark"));
+    return () => observer.disconnect();
+  }, []);
 
   const menuItems = [
     { name: "Home", path: "/dashboard", icon: <Home size={18} /> },
@@ -15,8 +27,16 @@ export default function Sidebar() {
   ];
 
   return (
-    <nav className="sidebar">
-      <div className="sidebar-title">Pennysworthe</div>
+    <nav className="sidebar bg-surface">
+      <div className="brand-header">
+        <img
+          src={isDark ? "/Logo_dark.PNG" : "/Logo.PNG"}
+          alt="Pennysworthe Logo"
+          className="brand-logo"
+        />
+        <h2 className="brand-name">Pennysworthe</h2>
+      </div>
+
       <ul className="menu">
         {menuItems.map((item) => (
           <li

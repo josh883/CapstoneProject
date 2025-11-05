@@ -1,5 +1,6 @@
 "use client";
 import "./SearchBar.css";
+import "@/app/globals.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -13,7 +14,7 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="search-section">
+    <div className="search-container">
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"

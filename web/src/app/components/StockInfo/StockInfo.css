@@ -1,0 +1,125 @@
+.stock-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface, #fff);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.stock-container::-webkit-scrollbar {
+  width: 8px;
+}
+.stock-container::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3);
+  border-radius: 8px;
+}
+.stock-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5);
+}
+
+.stock-header {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.stock-meta {
+  background-color: var(--color-primary-light, #eef2ff);
+  border: 1px solid var(--color-primary, #4f46e5);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+  background-color: var(--color-surface, #fff);
+  border-radius: 0.5rem;
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.stock-table th {
+  background-color: var(--color-background-alt, #f9fafb);
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-text-secondary, #6b7280);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.stock-table td {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #374151);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.stock-table tr:hover {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.positive {
+  color: #16a34a;
+}
+
+.negative {
+  color: #dc2626;
+}
+
+.chart-container {
+  margin-top: 2rem;
+  background-color: var(--color-surface);
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  height: 400px;
+  position: relative;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ------------------------------
+   Dark Mode
+------------------------------ */
+html.dark .stock-container {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+html.dark .stock-meta {
+  background-color: var(--color-surface-dark);
+  border-color: var(--color-primary);
+}
+
+html.dark .stock-table th {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border-dark);
+}
+
+html.dark .stock-table td {
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-dark);
+}
+
+html.dark .chart-container {
+  background-color: var(--color-surface-dark);
+}

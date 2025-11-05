@@ -1,19 +1,48 @@
 .page-layout {
   display: flex;
   height: 100vh;
-  background-color: #f3f4f6;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
   padding: 24px;
   box-sizing: border-box;
   gap: 28px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow: hidden;
 }
 
 .page-content {
   flex: 1;
-  background-color: white;
+  background-color: var(--color-surface);
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   padding: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: auto;
+}
+
+/* Dark mode */
+html.dark .page-layout {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+html.dark .page-content {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .page-layout {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .page-content {
+    width: 100%;
+    margin-top: 16px;
+  }
 }

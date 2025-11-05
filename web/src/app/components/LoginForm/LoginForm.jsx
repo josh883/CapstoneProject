@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import "@/app/globals.css"; 
 import "./LoginForm.css";
 
 export default function LoginForm() {
@@ -8,6 +9,17 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    setIsDark(document.documentElement.classList.contains("dark"));
+    return () => observer.disconnect();
+  }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +40,9 @@ export default function LoginForm() {
       if (res.ok) {
         setMessage(data.message);
         if (!isRegister) {
+          // *** POSTGRES LOGIC APPLIED HERE ***
+          // Removed: localStorage.setItem("username", username);
+          // This aligns with your second file, keeping the auth session server-side.
           window.location.href = "/dashboard";
         } else {
           setIsRegister(false);
@@ -40,15 +55,26 @@ export default function LoginForm() {
     }
   };
 
-
   return (
-    <div className="login-container">
-      <img src="/Logo.PNG" alt="Logo" className="logo" />
+    <div className="login-page">  
+      <div className="brand-header">
+        <img
+          src={isDark ? "/Logo_dark.PNG" : "/Logo.PNG"}
+          alt="Pennysworthe Logo"
+          className="brand-logo"
+        />
+        <h2 className="brand-name">Pennysworthe</h2>
+      </div>
 
-      <div className="form-wrapper">
+      <div className="form-card">
+        <h1 className="form-title">
+          {isRegister ? "Create Account" : "Welcome Back"}
+        </h1>
+        <p className="form-subtitle">
+          {isRegister ? "Sign up" : "Sign in"}
+        </p>
+
         <form onSubmit={handleSubmit}>
-          <h1>{isRegister ? "Register" : "Login"}</h1>
-
           <div className="input-box">
             <input
               type="text"
@@ -81,13 +107,13 @@ export default function LoginForm() {
             />
           </div>
 
-          <button type="submit" className="btn">
+          <button type="submit" className="submit-btn">
             {isRegister ? "Register" : "Login"}
           </button>
 
           {message && <p className="message">{message}</p>}
 
-          <div className="register-link">
+          <div className="toggle-text">
             {isRegister ? (
               <p>
                 Already have an account?{" "}

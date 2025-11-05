@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./News.css";
+import "@/app/globals.css";
 
 export default function News() {
   const [articles, setArticles] = useState([]);
@@ -33,7 +34,6 @@ export default function News() {
       <h2 className="news-header">Market News</h2>
       <div className="news-grid">
         {articles.map((a, i) => {
-          // Safe date parsing
           let dateText = "Unknown date";
           if (a.time_published) {
             const d = new Date(a.time_published);
@@ -46,7 +46,6 @@ export default function News() {
             }
           }
 
-          // Trim long text
           const shortTitle = a.title?.length > 80 ? a.title.slice(0, 77) + "..." : a.title;
           const summary = a.summary?.length > 150 ? a.summary.slice(0, 147) + "..." : a.summary;
 
