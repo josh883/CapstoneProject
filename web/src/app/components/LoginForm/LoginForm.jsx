@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { buildApiUrl } from "../../lib/apiClient";
 import "./LoginForm.css";
 
 export default function LoginForm() {
@@ -17,7 +18,7 @@ export default function LoginForm() {
         ? { username, email, password }
         : { username, password };
 
-      const res = await fetch(`http://localhost:8000/${endpoint}`, {
+      const res = await fetch(buildApiUrl(endpoint), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

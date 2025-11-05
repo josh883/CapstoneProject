@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { buildApiUrl } from "../../lib/apiClient";
 import "./News.css";
 
 export default function News() {
@@ -8,7 +9,7 @@ export default function News() {
   useEffect(() => {
     async function fetchNews() {
       try {
-        const res = await fetch("http://localhost:8000/api/news");
+        const res = await fetch(buildApiUrl("/api/news"));
         const data = await res.json();
         setArticles(data.articles || []);
       } catch (e) {

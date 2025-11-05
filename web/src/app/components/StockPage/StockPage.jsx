@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Chart from "chart.js/auto";
+import { buildApiUrl } from "../../lib/apiClient";
 
 export default function StockPage() {
   const { symbol } = useParams();
@@ -18,7 +19,9 @@ export default function StockPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`http://localhost:8000/prices?function=TIME_SERIES_DAILY&symbol=${symbol}`);
+        const res = await fetch(
+          buildApiUrl(`/prices?function=TIME_SERIES_DAILY&symbol=${symbol}`)
+        );
         const json = await res.json();
         if (!res.ok) throw new Error(json.detail || "Fetch error");
         setData(json);
