@@ -1,71 +1,84 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import sqlite3
 import bcrypt
-from typing import Optional
+
+from server.database import get_db_connection
 
 router = APIRouter()
-DB_PATH = "server/users.db"
 
-class User(BaseModel):
+
+class RegisterRequest(BaseModel):
     username: str
     password: str
-    email: Optional[str] = None
+    email: str
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 
 @router.post("/register")
-async def register(request: Request):
-    data = await request.json()
-    username = data.get("username")
-    password = data.get("password")
-    email = data.get("email")
+async def register(payload: RegisterRequest):
+    username = payload.username
+    password = payload.password
+    email = payload.email
 
     if not username or not password or not email:
         raise HTTPException(status_code=400, detail="Username, email, and password required")
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT 1 FROM users WHERE username = %s OR email = %s",
+                    (username, email),
+                )
+                if cur.fetchone():
+                    raise HTTPException(
+                        status_code=400, detail="Username or email already exists"
+                    )
 
-    # Check for existing username or email
-    cur.execute("SELECT * FROM users WHERE username = ? OR email = ?", (username, email))
-    if cur.fetchone():
+                hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode(
+                    "utf-8"
+                )
+                cur.execute(
+                    "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                    (username, email, hashed),
+                )
+    finally:
         conn.close()
-        raise HTTPException(status_code=400, detail="Username or email already exists")
-
-    # Hash password and insert
-    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-    cur.execute(
-        "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-        (username, email, hashed),
-    )
-    conn.commit()
-    conn.close()
 
     return {"message": "User registered successfully"}
 
 @router.post("/login")
-async def login(request: Request):
-    data = await request.json()
-    username = data.get("username")
-    password = data.get("password")
+async def login(payload: LoginRequest):
+    username = payload.username
+    password = payload.password
 
     if not username or not password:
         raise HTTPException(status_code=400, detail="Username and password required")
 
     conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-    db_user = cur.fetchone()
-    conn.close()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT id, username, email, password FROM users WHERE username = %s",
+                (username,),
+            )
+            db_user = cur.fetchone()
+    finally:
+        conn.close()
 
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    if not bcrypt.checkpw(password.encode("utf-8"), db_user["password"]):
+    stored_password = db_user["password"]
+    if stored_password is None:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    if not bcrypt.checkpw(password.encode("utf-8"), stored_password.encode("utf-8")):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     return {"message": "Login successful"}

@@ -9,25 +9,37 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const res = await fetch("http://localhost:8000/login", {
+      const endpoint = isRegister ? "register" : "login";
+      const payload = isRegister
+        ? { username, email, password }
+        : { username, password };
+
+      const res = await fetch(`http://localhost:8000/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        });
-        const data = await res.json();
-        if (res.ok) {
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
         setMessage(data.message);
-        window.location.href = "/dashboard";
+        if (!isRegister) {
+          window.location.href = "/dashboard";
         } else {
-        setMessage(data.detail || "Login failed");
+          setIsRegister(false);
         }
+      } else {
+        setMessage(data.detail || "Request failed");
+      }
     } catch (err) {
-        setMessage("Network error");
+      setMessage("Network error");
     }
-    };
+  };
+
 
   return (
     <div className="login-container">
