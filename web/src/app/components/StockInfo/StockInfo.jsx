@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { buildApiUrl } from "../../lib/apiClient";
 import Chart from "chart.js/auto";
 import "./StockInfo.css";
 
@@ -20,7 +21,7 @@ export default function StockInfo() {
     async function fetchData() {
       try {
         const res = await fetch(
-          `http://localhost:8000/prices?function=TIME_SERIES_DAILY&symbol=${symbol}`
+          buildApiUrl(`/prices?function=TIME_SERIES_DAILY&symbol=${symbol}`)
         );
         const json = await res.json();
         if (!res.ok) throw new Error(json.detail || "Fetch error");

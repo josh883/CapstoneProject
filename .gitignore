@@ -42,3 +42,6 @@ web/next-env.d.ts
 capstone_venv/
 capstone/node_modules/
 capstone/*.json
+
+# local env files
+web/.env.local
