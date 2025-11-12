@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+# server/auth.py
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 import bcrypt
 
@@ -53,7 +54,7 @@ async def register(payload: RegisterRequest):
     return {"message": "User registered successfully"}
 
 @router.post("/login")
-async def login(payload: LoginRequest):
+async def login(payload: LoginRequest, response: Response):
     username = payload.username
     password = payload.password
 
@@ -81,4 +82,14 @@ async def login(payload: LoginRequest):
     if not bcrypt.checkpw(password.encode("utf-8"), stored_password.encode("utf-8")):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    return {"message": "Login successful"}
+    # Set HttpOnly cookie to identify the session user on subsequent requests
+    # Path=/ so it's sent to the API endpoints. Not signed; for production sign it.
+    response.set_cookie(
+        key="session_user",
+        value=db_user["username"],
+        httponly=True,
+        samesite="lax",
+        path="/",
+    )
+
+    return {"message": "Login successful", "username": db_user["username"]}

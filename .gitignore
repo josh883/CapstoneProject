@@ -45,3 +45,5 @@ capstone/*.json
 
 # local env files
 web/.env.local
+
+commands.txt

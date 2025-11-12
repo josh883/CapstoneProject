@@ -2,7 +2,7 @@
 import "./DashboardLayout.css";
 import Sidebar from "../../Sidebar/Sidebar";
 import SearchBar from "../../SearchBar/SearchBar";
-import Watchlist from "../../Watchlist/Watchlist";
+import WatchlistDash from "../../WatchlistDashboard/WatchlistDashboard";
 import UserData from "../../UserData/UserData";
 import Profile from "../../Profile/Profile";
 import News from "../../News/News";
@@ -14,7 +14,7 @@ export default function DashboardLayout() {
 
       <div className="main-content">
         <SearchBar />
-        <Watchlist />
+        <WatchlistDash />
         <UserData />
       </div>
 

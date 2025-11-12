@@ -2,15 +2,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { buildApiUrl } from "../../lib/apiClient";
-import "./Watchlist.css";
+import "./WatchlistDashboard.css";
 
-export default function Watchlist() {
+export default function WatchlistDash() {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  const trendingStocks = ["NVDA", "TSLA", "AAPL", "META", "AMZN", "GOOG"];
-  const otherStocks = ["SHOP", "UBER", "NFLX", "MSFT", "DIS", "AMD"];
 
   useEffect(() => {
     async function fetchWatchlist() {
@@ -31,14 +28,25 @@ export default function Watchlist() {
     router.push(`/stock/${ticker}`);
   };
 
-  const renderSection = (title, stocks, emptyText) => (
-    <div className="watchlist-section-card">
-      <h2 className="section-title">{title}</h2>
+  if (loading) {
+    return (
+      <div className="watchlistdash-section placeholder-box">
+        Loading your watchlist...
+      </div>
+    );
+  }
+
+  return (
+    <div className="watchlistdash-section">
+      <div className="section-header">
+        <h2>Your Watchlist</h2>
+      </div>
+
       <div className="stock-row">
-        {stocks.length === 0 ? (
-          <p className="empty-text">{emptyText}</p>
+        {watchlist.length === 0 ? (
+          <p className="empty-text">No stocks in your watchlist yet.</p>
         ) : (
-          stocks.map((ticker) => (
+          watchlist.map((ticker) => (
             <div key={ticker} className="stock-card" onClick={() => handleClick(ticker)}>
               <img
                 src={`https://financialmodelingprep.com/image-stock/${ticker}.png`}
@@ -52,20 +60,6 @@ export default function Watchlist() {
           ))
         )}
       </div>
-    </div>
-  );
-
-  return (
-    <div className="watchlist-page">
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          {renderSection("Your Watchlist", watchlist, "No stocks in your watchlist yet.")}
-          {renderSection("Hot Right Now", trendingStocks, "No trending data.")}
-          {renderSection("Suggested Stocks", otherStocks, "No suggestions yet.")}
-        </>
-      )}
     </div>
   );
 }

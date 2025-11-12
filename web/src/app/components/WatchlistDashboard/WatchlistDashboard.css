@@ -1,40 +1,33 @@
-.watchlist-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-  gap: 20px;
-  overflow-y: auto;
-  padding-right: 6px;
-  scrollbar-width: thin;
-  background-color: var(--color-background);
-}
-
-.watchlist-section-card {
+.watchlistdash-section {
   background-color: var(--color-surface, #ffffff);
   border: 1px solid var(--color-border, #e0e0e0);
   border-radius: 18px;
-  padding: 18px 22px;
-  flex: 1;
+  padding: 18px 22px 10px 22px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
-.section-title {
-  font-size: 18px;
+.section-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.section-header h2 {
+  font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 12px;
   color: var(--color-text-primary);
+  margin: 0 0 6px 2px;
 }
 
 .stock-row {
   display: flex;
   overflow-x: auto;
   gap: 16px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding: 12px 0;
   scrollbar-width: thin;
   scroll-behavior: smooth;
 }
@@ -50,7 +43,6 @@ html.dark .stock-row::-webkit-scrollbar-thumb {
   background-color: #636262;
 }
 
-/* Stock cards */
 .stock-card {
   background-color: var(--color-background-alt, #fafafa);
   border: 1px solid var(--color-border, #e0e0e0);
@@ -98,22 +90,32 @@ html.dark .stock-row::-webkit-scrollbar-thumb {
   padding: 10px 0;
 }
 
-/* Dark mode */
-html.dark .watchlist-section-card {
+/* dark mode */
+html.dark .watchlistdash-section {
   background-color: var(--color-surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+html.dark .section-header h2 {
+  color: var(--color-text-primary);
+}
+
+html.dark .header-line {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 html.dark .stock-card {
   background-color: #262626;
   color: var(--color-text-primary);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 html.dark .stock-card:hover {
   background-color: var(--color-primary);
   color: white;
 }
 
-/* Responsiveness*/
+/* responsiv */
 @media (max-width: 1440px) {
   .stock-card {
     flex: 0 0 calc(18% - 8px);
@@ -138,3 +140,14 @@ html.dark .stock-card:hover {
     height: 55px;
   }
 }
+@media (max-height: 800px) {
+  .watchlistdash-section {
+    height: 240px;
+  }
+}
+@media (max-height: 650px) {
+  .watchlistdash-section {
+    height: 200px;
+  }
+}
+

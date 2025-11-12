@@ -32,6 +32,7 @@ export default function LoginForm() {
 
       const res = await fetch(buildApiUrl(endpoint), {
         method: "POST",
+        credentials: "include", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -41,9 +42,9 @@ export default function LoginForm() {
       if (res.ok) {
         setMessage(data.message);
         if (!isRegister) {
-          // *** POSTGRES LOGIC APPLIED HERE ***
-          // Removed: localStorage.setItem("username", username);
-          // This aligns with your second file, keeping the auth session server-side.
+          // Save username locally for UI.
+          //the server also sets an HttpOnly cookie named `session_user`
+          localStorage.setItem("username", username);
           window.location.href = "/dashboard";
         } else {
           setIsRegister(false);

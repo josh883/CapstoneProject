@@ -1,5 +1,4 @@
 import os
-
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -7,6 +6,8 @@ from server.auth import router as auth_router
 from server.database import init_db
 from server.api_data_fetch import get_prices
 from server.api_news_fetch import get_news
+from server.watchlist import router as watchlist_router
+
 
 app = FastAPI()
 
@@ -45,6 +46,7 @@ def startup_event():
     init_db()
 
 app.include_router(auth_router)
+app.include_router(watchlist_router)
 
 def json_safe(d):
     meta, rows = d["meta"], d["rows"]

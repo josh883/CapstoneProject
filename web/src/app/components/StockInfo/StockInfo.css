@@ -97,7 +97,7 @@
 }
 
 /* ------------------------------
-   Dark Mode
+   Dark mde
 ------------------------------ */
 html.dark .stock-container {
   background-color: var(--color-background);
@@ -122,4 +122,16 @@ html.dark .stock-table td {
 
 html.dark .chart-container {
   background-color: var(--color-surface-dark);
+}
+
+.watchlist-btn {
+  margin: 1rem 0;
+  align-self: center;
+  font-weight: 500;
+}
+
+.watchlist-message {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
 }
