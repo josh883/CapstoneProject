@@ -47,3 +47,6 @@ capstone/*.json
 web/.env.local
 
 commands.txt
+
+# Local Environment Variables
+.env
