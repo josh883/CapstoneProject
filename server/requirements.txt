@@ -7,3 +7,5 @@ bcrypt
 python-multipart
 jinja2
 psycopg2-binary==2.9.9
+matplotlib
+numpy
