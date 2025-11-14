@@ -1,5 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { buildApiUrl } from "../../lib/apiClient";
+import "@/app/globals.css"; 
 import "./LoginForm.css";
 
 export default function LoginForm() {
@@ -8,35 +10,73 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isDark, setIsDark] = useState(false);
 
-    const handleSubmit = async (e) => {
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    setIsDark(document.documentElement.classList.contains("dark"));
+    return () => observer.disconnect();
+  }, []);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const res = await fetch("http://localhost:8000/login", {
+      const endpoint = isRegister ? "register" : "login";
+      const payload = isRegister
+        ? { username, email, password }
+        : { username, password };
+
+      const res = await fetch(buildApiUrl(endpoint), {
         method: "POST",
+        credentials: "include", 
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        });
-        const data = await res.json();
-        if (res.ok) {
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
         setMessage(data.message);
-        window.location.href = "/dashboard";
+        if (!isRegister) {
+          // Save username locally for UI.
+          //the server also sets an HttpOnly cookie named `session_user`
+          localStorage.setItem("username", username);
+          window.location.href = "/dashboard";
         } else {
-        setMessage(data.detail || "Login failed");
+          setIsRegister(false);
         }
+      } else {
+        setMessage(data.detail || "Request failed");
+      }
     } catch (err) {
-        setMessage("Network error");
+      setMessage("Network error");
     }
-    };
+  };
 
   return (
-    <div className="login-container">
-      <img src="/Logo.PNG" alt="Logo" className="logo" />
+    <div className="login-page">  
+      <div className="brand-header">
+        <img
+          src={isDark ? "/Logo_dark.PNG" : "/Logo.PNG"}
+          alt="Pennysworthe Logo"
+          className="brand-logo"
+        />
+        <h2 className="brand-name">Pennysworthe</h2>
+      </div>
 
-      <div className="form-wrapper">
+      <div className="form-card">
+        <h1 className="form-title">
+          {isRegister ? "Create Account" : "Welcome Back"}
+        </h1>
+        <p className="form-subtitle">
+          {isRegister ? "Sign up" : "Sign in"}
+        </p>
+
         <form onSubmit={handleSubmit}>
-          <h1>{isRegister ? "Register" : "Login"}</h1>
-
           <div className="input-box">
             <input
               type="text"
@@ -69,13 +109,13 @@ export default function LoginForm() {
             />
           </div>
 
-          <button type="submit" className="btn">
+          <button type="submit" className="submit-btn">
             {isRegister ? "Register" : "Login"}
           </button>
 
           {message && <p className="message">{message}</p>}
 
-          <div className="register-link">
+          <div className="toggle-text">
             {isRegister ? (
               <p>
                 Already have an account?{" "}

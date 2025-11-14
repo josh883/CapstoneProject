@@ -5,7 +5,6 @@ import os
 import requests
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Tuple, Optional
-import sqlite3
 import time
 from collections import deque
 

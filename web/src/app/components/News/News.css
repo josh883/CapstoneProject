@@ -1,20 +1,22 @@
 .news-section {
   flex: 1;
-  background-color: #f9fafb;
+  background-color: var(--color-surface);
   border-radius: 12px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   padding: 20px;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.06);
   overflow-y: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .news-header {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 12px;
 }
 
-/* Grid layout to show multiple cards neatly */
 .news-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -22,8 +24,10 @@
 }
 
 .news-card {
-  background-color: #ffffff;
+  background-color: var(--color-background);
   border-radius: 10px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   padding: 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease-in-out;
@@ -31,14 +35,13 @@
 }
 
 .news-card:hover {
-  background-color: #f3f4f6;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+  background-color: var(--color-primary-light);
   transform: translateY(-1px);
 }
 
 .news-title {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   font-size: 0.95rem;
   margin-bottom: 4px;
   line-height: 1.2;
@@ -46,21 +49,21 @@
 
 .news-source {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 6px;
 }
 
 .news-summary {
   font-size: 0.85rem;
-  color: #374151;
+  color: var(--color-text-primary);
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Compact variant for smaller cards */
 .news-card.compact {
   padding: 12px;
 }
@@ -68,6 +71,34 @@
 .placeholder-box {
   text-align: center;
   padding: 20px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
+}
+
+/* ------------------------------
+   Dark mode
+------------------------------ */
+html.dark .news-section {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+}
+
+html.dark .news-card {
+  background-color: #333333; 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.05);
+}
+
+html.dark .news-card:hover {
+  background-color: var(--color-primary);
+}
+
+html.dark .news-title,
+html.dark .news-summary {
+  color: var(--color-text-primary);
+}
+
+html.dark .news-source {
+  color: var(--color-text-secondary);
 }

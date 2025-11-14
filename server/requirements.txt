@@ -1,7 +1,9 @@
 fastapi==0.118.0
+pydantic>=1.10,<2.0
 uvicorn[standard]==0.37.0
 requests==2.31.0
 python-dotenv==1.1.1
 bcrypt
 python-multipart
 jinja2
+psycopg2-binary==2.9.9

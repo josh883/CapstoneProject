@@ -1,0 +1,85 @@
+.stock-dashboard-container {
+  display: grid;
+  grid-template-columns: 18% 1fr 22%;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  padding: 24px;
+  box-sizing: border-box;
+  gap: 28px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.stock-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+.stock-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+.stock-right-panel > :last-child {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-light) transparent;
+}
+
+/* ------------------------------
+   Dark Mode Compatibility
+------------------------------ */
+html.dark .stock-dashboard-container {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+html.dark .stock-main-content,
+html.dark .stock-right-panel {
+  background-color: transparent;
+}
+
+@media (max-width: 1280px) {
+  .stock-dashboard-container {
+    grid-template-columns: 20% 1fr 25%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .stock-dashboard-container {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto auto;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .stock-main-content {
+    order: 2;
+  }
+
+  .stock-right-panel {
+    order: 3;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    overflow: visible;
+  }
+
+  .stock-right-panel > * {
+    flex: 1 1 48%;
+    min-width: 320px;
+  }
+
+  .sidebar {
+    order: 1;
+    width: 100%;
+  }
+}

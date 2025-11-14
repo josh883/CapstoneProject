@@ -1,5 +1,5 @@
 // setup.js
-// Cross-platform setup: node + python venv + npm installs for root and web
+// Cross platform setup: node + python venv + npm installs for root and web
 // Usage: node setup.js
 
 const { spawnSync } = require("child_process");
@@ -48,7 +48,7 @@ function exist(p) {
   }
 }
 
-// 0. Basic checks
+// Basic checks
 const node = which("node");
 if (!node) {
   console.error("Node.js not found. Install Node 18+ or use Volta/nvm.");
@@ -58,13 +58,25 @@ if (!node) {
 const nodeVersion = spawnSync("node", ["-v"], { encoding: "utf8" }).stdout.trim();
 const major = parseInt(nodeVersion.replace(/^v/, "").split(".")[0], 10);
 if (isNaN(major) || major < 18) {
-  console.error(`Node.js ${nodeVersion} detected. Please use Node 18+ (recommended 20).`);
+  console.error(`Node.js ${nodeVersion} detected. Please use Node 18+ (recommended 20)`);
   process.exit(1);
 }
 
-const python = which("python") || which("python3");
+const envFile = ".env";
+const envExample = ".env.example";
+if (exist(envFile)) {
+  console.log("Found existing .env");
+} else if (exist(envExample)) {
+  fs.copyFileSync(envExample, envFile);
+  console.log("Created .env from .env.example (update DATABASE_URL as needed)");
+} else {
+  console.warn("⚠️ No .env or .env.example found. Create .env with DATABASE_URL before running the API.");
+}
+
+// Prefer python3 on mac/linux to avoid Python 2
+const python = which("python3") || which("python");
 if (!python) {
-  console.error("Python not found. Install Python 3.8+ and ensure 'python' or 'python3' is on PATH.");
+  console.error("Python not found. Install Python 3.8+ and ensure 'python3' or 'python' is on PATH.");
   process.exit(1);
 }
 
@@ -77,7 +89,7 @@ if (!exist(VENV_DIR)) {
   console.log("Python venv exists:", VENV_DIR);
 }
 
-// 2. Upgrade pip and install python requirements
+// upgrade pip and install python requirements
 const pipPath = pipPathFromVenv(VENV_DIR);
 if (!exist(pipPath)) {
   console.error("Pip not found inside venv at", pipPath);
@@ -94,13 +106,13 @@ if (!exist(requirements)) {
 console.log("Installing python requirements");
 run(pipPath, ["install", "-r", requirements]);
 
-// 3. Root npm install (prefer npm ci if lockfile)
+// root npm install
 const rootLock = exist("package-lock.json");
 console.log(rootLock ? "Running npm ci (root)" : "Running npm install (root)");
 if (rootLock) run("npm", ["ci"]);
 else run("npm", ["install"]);
 
-// 4. Web/Next install
+// Web/Next install
 const webDir = path.join("web");
 if (!exist(webDir)) {
   console.error("Missing web folder. Expected ./web");
@@ -109,8 +121,10 @@ if (!exist(webDir)) {
 const webLock = exist(path.join(webDir, "package-lock.json"));
 console.log(webLock ? "Running npm ci (web)" : "Running npm install (web)");
 run("npm", ["--prefix", "web", webLock ? "ci" : "install"]);
+console.log("Ensuring lucide-react is installed in web package");
+run("npm", ["--prefix", "web", "install", "lucide-react"]);
 
-// 5. Success
+// Success
 console.log("");
 console.log("✅ Setup complete.");
 console.log("To start both servers: npm run dev");

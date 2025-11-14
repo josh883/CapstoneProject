@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { buildApiUrl } from "../../lib/apiClient";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -6,7 +6,11 @@ export async function GET(req) {
   const symbol = searchParams.get("symbol");
   const interval = searchParams.get("interval");
 
-  const backendUrl = new URL("http://localhost:8000/prices");
+  const hostHeader = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  const protocol = req.headers.get("x-forwarded-proto") ?? "http";
+  const backendUrl = new URL(
+    buildApiUrl("/prices", { host: hostHeader, protocol })
+  );
   backendUrl.searchParams.set("function", functionParam);
   backendUrl.searchParams.set("symbol", symbol);
   if (interval) backendUrl.searchParams.set("interval", interval);

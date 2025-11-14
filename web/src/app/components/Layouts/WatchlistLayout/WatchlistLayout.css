@@ -1,0 +1,81 @@
+.watchlist-dashboard-container {
+  display: grid;
+  grid-template-columns: 18% 1fr 22%;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  padding: 24px;
+  box-sizing: border-box;
+  gap: 28px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow: hidden;
+}
+
+/* ------------------------------
+   Dark Mod
+------------------------------ */
+html.dark .watchlist-dashboard-container {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+html.dark .main-content,
+html.dark .right-panel {
+  background-color: transparent;
+}
+
+/* ------------------------------
+   Responsiveness
+------------------------------ */
+@media (max-width: 1280px) {
+  .watchlist-dashboard-container {
+    grid-template-columns: 20% 1fr 25%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .watchlist-dashboard-container {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto auto;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .main-content {
+    order: 2;
+  }
+
+  .right-panel {
+    order: 3;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    overflow: visible;
+  }
+
+  .right-panel > * {
+    flex: 1 1 48%;
+    min-width: 320px;
+  }
+
+  .sidebar {
+    order: 1;
+    width: 100%;
+  }
+}

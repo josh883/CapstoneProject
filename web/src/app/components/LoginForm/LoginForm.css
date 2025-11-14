@@ -1,85 +1,123 @@
-.login-container {
+.login-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f4f6f8;
-  color: #1a1a1a;
-  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-background));
+  padding: 2rem;
+  transition: background-color 0.3s ease;
 }
 
-.logo {
-  width: 150px;
-  margin-bottom: 30px;
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.form-wrapper {
-  background-color: #ffffff;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.form-card {
+  background-color: var(--color-surface);
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   width: 380px;
+  max-width: 90%;
+  text-align: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #1a1a1a;
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 
 .input-box {
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .input-box input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #f9f9f9;
-  color: #1a1a1a;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, background-color 0.3s ease;
 }
 
 .input-box input:focus {
   outline: none;
-  border-color: #4da6ff;
-  background-color: #ffffff;
+  border-color: var(--color-primary);
+  background-color: var(--color-background);
 }
 
-.btn {
+.submit-btn {
   width: 100%;
-  padding: 12px;
-  background-color: #4da6ff;
+  padding: 0.8rem;
+  font-weight: 600;
+  font-size: 1rem;
   border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: bold;
+  border-radius: 0.5rem;
   cursor: pointer;
-}
-
-.btn:hover {
-  background-color: #3399ff;
-}
-
-.toggle-link {
-  text-align: center;
-  font-size: 0.9rem;
-  margin-top: 15px;
+  transition: background-color 0.2s ease;
 }
 
 .message {
-  text-align: center;
-  margin-top: 10px;
-  color: #e63946;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #dc2626;
+}
+
+.toggle-text {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }
 
 .link-button {
   background: none;
   border: none;
-  color: #0070f3;
-  font-weight: bold;
-  text-decoration: underline;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
   padding: 0;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.link-button:hover { 
+  background: none; 
+  color: var(--color-primary-hover); 
+  text-decoration: underline; 
+}
+
+/* Dark mode compatibility */
+html.dark .form-card {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+}
+
+html.dark .input-box input {
+  border: 1px solid #333;
 }
