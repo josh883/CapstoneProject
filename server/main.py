@@ -8,6 +8,7 @@ from server.database import init_db
 from server.api_data_fetch import get_prices
 from server.api_news_fetch import get_news
 from server.watchlist import router as watchlist_router
+from server.portfolio import router as portfolio_router
 from . import risk_gauge # NEW: Import your risk_gauge module
 
 # --- NEW: Define Static Directory and ensure it exists ---
@@ -35,7 +36,7 @@ if extra_origins:
         if origin.strip() and origin.strip() not in origins
     )
 
-# Ensure current host IP (common on Wi-Fi) is allowed if set in env or list
+# ensure current host IP is allowed if set in env or list
 default_host = os.getenv("HOST_IP")
 if default_host:
     candidate = f"http://{default_host}:3000"
@@ -50,13 +51,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize database on startup
+# init database on startup
 @app.on_event("startup")
 def startup_event():
     init_db()
 
 app.include_router(auth_router)
 app.include_router(watchlist_router)
+app.include_router(portfolio_router)
 
 def json_safe(d):
     meta, rows = d["meta"], d["rows"]
