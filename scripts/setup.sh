@@ -71,7 +71,9 @@ else
   npm install
 fi
 
-npm install lucide-react # install lucide react as a dependency
+npm install lucide-react 
+
+npm install @iconify/react
 
 
 cd ..
