@@ -21,31 +21,38 @@ if not os.path.exists(STATIC_DIR):
 
 app = FastAPI()
 
-# FIX: Removed invisible U+00A0 characters and corrected list formatting
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://172.24.141.32:3000", # your network IP
-]
+DEFAULT_ORIGIN_REGEX = (
+    r"https?://(?:localhost|127(?:\.[0-9]{1,3}){3}|(?:\d{1,3}\.){3}\d{1,3})(?::\d+)?"
+)
 
-extra_origins = os.getenv("FRONTEND_ORIGINS", "")
-if extra_origins:
-    origins.extend(
-        origin.strip()
-        for origin in extra_origins.split(",")
-        if origin.strip() and origin.strip() not in origins
-    )
+def build_allowed_origins():
+    base_origins = {
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://172.24.141.32:3000", # your network IP
+    }
 
-# ensure current host IP is allowed if set in env or list
-default_host = os.getenv("HOST_IP")
-if default_host:
-    candidate = f"http://{default_host}:3000"
-    if candidate not in origins:
-        origins.append(candidate)
+    extra_origins = os.getenv("FRONTEND_ORIGINS", "")
+    if extra_origins:
+        base_origins.update(
+            origin.strip()
+            for origin in extra_origins.split(",")
+            if origin.strip()
+        )
+
+    host_ip = os.getenv("HOST_IP")
+    if host_ip:
+        base_origins.add(f"http://{host_ip}:3000")
+
+    return sorted(base_origins)
+
+origins = build_allowed_origins()
+origin_regex = os.getenv("FRONTEND_ORIGIN_REGEX", DEFAULT_ORIGIN_REGEX)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
