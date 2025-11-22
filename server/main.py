@@ -9,6 +9,7 @@ from server.api_data_fetch import get_prices
 from server.api_news_fetch import get_news
 from server.watchlist import router as watchlist_router
 # Import your existing risk_gauge module
+from server.portfolio import router as portfolio_router
 from . import risk_gauge 
 
 # --- NEW: Import Scheduler ---
@@ -32,30 +33,38 @@ if not os.path.exists(STATIC_DIR):
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://172.24.141.32:3000", 
-]
+DEFAULT_ORIGIN_REGEX = (
+    r"https?://(?:localhost|127(?:\.[0-9]{1,3}){3}|(?:\d{1,3}\.){3}\d{1,3})(?::\d+)?"
+)
 
-extra_origins = os.getenv("FRONTEND_ORIGINS", "")
-if extra_origins:
-    origins.extend(
-        origin.strip()
-        for origin in extra_origins.split(",")
-        if origin.strip() and origin.strip() not in origins
-    )
+def build_allowed_origins():
+    base_origins = {
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://172.24.141.32:3000", # your network IP
+    }
 
-# Ensure current host IP (common on Wi-Fi) is allowed if set in env or list
-default_host = os.getenv("HOST_IP")
-if default_host:
-    candidate = f"http://{default_host}:3000"
-    if candidate not in origins:
-        origins.append(candidate)
+    extra_origins = os.getenv("FRONTEND_ORIGINS", "")
+    if extra_origins:
+        base_origins.update(
+            origin.strip()
+            for origin in extra_origins.split(",")
+            if origin.strip()
+        )
+
+    host_ip = os.getenv("HOST_IP")
+    if host_ip:
+        base_origins.add(f"http://{host_ip}:3000")
+
+    return sorted(base_origins)
+
+origins = build_allowed_origins()
+origin_regex = os.getenv("FRONTEND_ORIGIN_REGEX", DEFAULT_ORIGIN_REGEX)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -87,6 +96,7 @@ def startup_event():
 
 app.include_router(auth_router)
 app.include_router(watchlist_router)
+app.include_router(portfolio_router)
 
 def json_safe(d):
     meta, rows = d["meta"], d["rows"]
@@ -180,3 +190,4 @@ async def get_risk_gauge(probability: float):
     
     # 4. Return the file
     return FileResponse(path=image_path, media_type="image/png")
+# -----------------------------------

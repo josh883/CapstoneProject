@@ -1,5 +1,5 @@
 # server/auth.py
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response, Request
 from pydantic import BaseModel
 import bcrypt
 
@@ -53,6 +53,7 @@ async def register(payload: RegisterRequest):
 
     return {"message": "User registered successfully"}
 
+
 @router.post("/login")
 async def login(payload: LoginRequest, response: Response):
     username = payload.username
@@ -83,7 +84,6 @@ async def login(payload: LoginRequest, response: Response):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     # Set HttpOnly cookie to identify the session user on subsequent requests
-    # Path=/ so it's sent to the API endpoints. Not signed; for production sign it.
     response.set_cookie(
         key="session_user",
         value=db_user["username"],
@@ -93,3 +93,60 @@ async def login(payload: LoginRequest, response: Response):
     )
 
     return {"message": "Login successful", "username": db_user["username"]}
+
+
+# ---------------------------
+# PATCH /update-user
+# ---------------------------
+from typing import Optional
+from fastapi import Body
+
+class UpdateUserPayload(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+
+@router.patch("/update-user")
+async def update_user(request: Request, response: Response, payload: UpdateUserPayload = Body(...)):
+    session_user = request.cookies.get("session_user")
+    if not session_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    new_email = payload.email.strip() if payload.email else None
+    new_password = payload.password if payload.password else None
+
+    if not any([new_email, new_password]):
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    conn = get_db_connection()
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                if new_email:
+                    cur.execute(
+                        "SELECT 1 FROM users WHERE email = %s AND username != %s",
+                        (new_email, session_user)
+                    )
+                    if cur.fetchone():
+                        raise HTTPException(status_code=400, detail="Email already taken")
+
+                updates = []
+                params = []
+
+                if new_email:
+                    updates.append("email = %s")
+                    params.append(new_email)
+                if new_password:
+                    hashed = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                    updates.append("password = %s")
+                    params.append(hashed)
+
+                if updates:
+                    params.append(session_user)  # WHERE username = %s
+                    query = f"UPDATE users SET {', '.join(updates)} WHERE username = %s"
+                    cur.execute(query, tuple(params))
+    finally:
+        conn.close()
+
+    return {"message": "Updated successfully", "username": session_user}

@@ -76,6 +76,9 @@ try {
         npm install
     }
     npm install lucide-react
+    
+    npm install @iconify/react
+
 }
 finally {
     Pop-Location

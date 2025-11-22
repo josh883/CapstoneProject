@@ -46,5 +46,42 @@ def init_db():
                     )
                     """
                 )
+
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS portfolio_holdings (
+                        id SERIAL PRIMARY KEY,
+                        username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+                        asset TEXT NOT NULL,
+                        shares NUMERIC NOT NULL,
+                        total_cost NUMERIC NOT NULL,
+                        created_at TIMESTAMPTZ DEFAULT NOW(),
+                        updated_at TIMESTAMPTZ DEFAULT NOW(),
+                        UNIQUE (username, asset)
+                    )
+                    """
+                )
+
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS portfolio_trades (
+                        id SERIAL PRIMARY KEY,
+                        username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+                        asset TEXT NOT NULL,
+                        trade_type TEXT NOT NULL CHECK (trade_type IN ('buy', 'sell')),
+                        price NUMERIC NOT NULL,
+                        shares NUMERIC,
+                        executed_at TIMESTAMPTZ NOT NULL,
+                        created_at TIMESTAMPTZ DEFAULT NOW()
+                    )
+                    """
+                )
+
+                cursor.execute(
+                    """
+                    CREATE INDEX IF NOT EXISTS idx_portfolio_trades_user_time
+                    ON portfolio_trades (username, executed_at DESC)
+                    """
+                )
     finally:
         conn.close()
