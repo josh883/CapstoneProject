@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os # Included for project compatibility
 
+# NEW: Set a non-interactive backend for use in a server environment
+plt.switch_backend('Agg') 
+
 def features(probability, file_path='risk_diagram.png'):
     """
     Generates a circular risk management gauge diagram.
@@ -44,7 +47,7 @@ def features(probability, file_path='risk_diagram.png'):
 
         # Add text labels for the zones
         label_angle = np.deg2rad(180 - (start + end) / 2 * 1.8)
-        ax.text(label_angle, 0.78, name, rotation=np.rad2deg(label_angle) + 90,
+        ax.text(label_angle, 0.78, name, rotation=np.deg2rad(label_angle) + 90,
                       ha='center', va='center', fontsize=12, fontweight='bold', color='white')
 
     # --- Create the needle ---
