@@ -30,6 +30,22 @@
   gap: 32px;
 }
 
+.portfolio-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.portfolio-topbar .search-container {
+  flex: 1;
+  min-width: 260px;
+}
+
+.portfolio-topbar .profile-wrapper {
+  padding: 0;
+}
+
 .portfolio-header {
   display: flex;
   flex-direction: column;
@@ -414,6 +430,15 @@ html.dark .trade-type-sell {
   .page-content {
     width: 100%;
     padding: 24px;
+  }
+
+  .portfolio-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portfolio-topbar .profile-wrapper {
+    justify-content: flex-start;
   }
 
   .portfolio-actions {

@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildApiUrl } from "@/app/lib/apiClient";
 import Sidebar from "../../Sidebar/Sidebar";
+import SearchBar from "../../SearchBar/SearchBar";
+import Profile from "../../Profile/Profile";
 import "./PortfolioLayout.css";
 
 const tradeFormInitialState = {
@@ -294,6 +296,10 @@ export default function PortfolioLayout() {
       <Sidebar />
       <div className="page-content">
         <div className="portfolio-page">
+          <div className="portfolio-topbar">
+            <SearchBar />
+            <Profile />
+          </div>
           <header className="portfolio-header">
             <div>
               <p className="eyebrow-text">Portfolio overview</p>
@@ -335,7 +341,7 @@ export default function PortfolioLayout() {
                   Add Holding
                 </button>
                 {activeMenu === "holding" && (
-                  <div className="action-menu">
+                  <div className="action-menu action-menu-right">
                     <h3>Track a holding</h3>
                     <p className="muted-text">
                       Quickly log a position with shares owned and total dollar

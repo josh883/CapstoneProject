@@ -6,13 +6,82 @@ import Chart from "chart.js/auto";
 import "@/app/globals.css";
 import "./StockInfo.css";
 
+// --- 1. Define the Modern SVG RiskGauge ---
+const RiskGauge = ({ probability }) => {
+  // Ensure value is between 0 and 100
+  const score = Math.min(Math.max(probability, 0), 100);
+  
+  // Determine dynamic color
+  let color = "#f59e0b"; // Orange (Neutral)
+  if (score >= 60) color = "#16a34a"; // Green (High/Buy)
+  if (score <= 40) color = "#dc2626"; // Red (Low/Sell)
+
+  // Calculate needle rotation: 0% = -90deg, 100% = 90deg
+  const rotation = (score / 100) * 180 - 90;
+
+  return (
+    <div className="gauge-wrapper">
+      <div className="gauge-svg-container">
+        <svg viewBox="0 0 200 110" className="gauge-svg">
+          <defs>
+            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#dc2626" />   {/* Red */}
+              <stop offset="50%" stopColor="#f59e0b" />  {/* Orange */}
+              <stop offset="100%" stopColor="#16a34a" /> {/* Green */}
+            </linearGradient>
+          </defs>
+
+          {/* Background Track (Gray) */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
+
+          {/* Colored Value Arc */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="url(#gaugeGradient)"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
+
+          {/* Needle */}
+          <g style={{ transform: `rotate(${rotation}deg)`, transformOrigin: "100px 100px", transition: "transform 1s ease-out" }}>
+            <line x1="100" y1="100" x2="100" y2="25" stroke="var(--color-text-primary)" strokeWidth="4" />
+            <circle cx="100" cy="100" r="6" fill="var(--color-text-primary)" />
+          </g>
+
+          {/* Labels */}
+          <text x="20" y="125" className="gauge-label" textAnchor="start">0</text>
+          <text x="180" y="125" className="gauge-label" textAnchor="end">100</text>
+        </svg>
+      </div>
+      
+      <div className="gauge-value" style={{ color: color }}>
+        {Math.round(score)}%
+      </div>
+    </div>
+  );
+};
+
 export default function StockInfo() {
   const { symbol } = useParams();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [search, setSearch] = useState("");
   const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [message, setMessage] = useState("");
+  
+// Sentiment State
+  const [sentiment, setSentiment] = useState(null);
+  const [isSentimentLoading, setIsSentimentLoading] = useState(true);
+  // Analysis State
+  const [analysis, setAnalysis] = useState(null);
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(true);
+
   const router = useRouter();
 
   const [username, setUsername] = useState("testuser");
@@ -22,13 +91,14 @@ export default function StockInfo() {
       if (storedUser) setUsername(storedUser);
     }
   }, []);
+  
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (search.trim()) router.push(`/stock/${search.toUpperCase()}`);
   };
 
-  // Fetch price data
+  // Fetch Price Data
   useEffect(() => {
     async function fetchData() {
       try {
@@ -45,7 +115,27 @@ export default function StockInfo() {
     fetchData();
   }, [symbol]);
 
-  // Check if this stock is in user's watchlist
+  // Fetch Analysis Data
+  useEffect(() => {
+    async function fetchAnalysis() {
+      if (!symbol) return;
+      setIsAnalysisLoading(true);
+      try {
+        const res = await fetch(buildApiUrl(`/analysis/${symbol.toUpperCase()}`));
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.detail || "Analysis fetch error");
+        setAnalysis(json);
+      } catch (e) {
+        console.error("Failed to fetch analysis", e);
+        setAnalysis(null);
+      } finally {
+        setIsAnalysisLoading(false);
+      }
+    }
+    fetchAnalysis();
+  }, [symbol]);
+
+  // Check Watchlist
   useEffect(() => {
     async function checkWatchlist() {
       try {
@@ -81,16 +171,35 @@ export default function StockInfo() {
       const json = await res.json();
       if (res.ok) {
         setIsInWatchlist(!isInWatchlist);
-        setMessage(json.message);
-      } else {
-        setMessage(json.detail || "Error updating watchlist");
       }
     } catch (e) {
-      setMessage("Network error");
+      // ignore error
     }
   };
+  // --- 1. Sentiment Fetching Logic ---
+  useEffect(() => {
+    async function fetchSentiment() {
+      if (!symbol) return;
+      setIsSentimentLoading(true);
+      try {
+        // NOTE: This uses the new FastAPI endpoint you created: /sentiment/{symbol}
+        const res = await fetch(buildApiUrl(`/sentiment/${symbol.toUpperCase()}`));
+        const json = await res.json();
+        
+        if (!res.ok) throw new Error(json.detail || "Sentiment fetch error");
+        
+        setSentiment(json);
+      } catch (e) {
+        console.error("Failed to fetch sentiment", e);
+        setSentiment(null);
+      } finally {
+        setIsSentimentLoading(false);
+      }
+    }
+    fetchSentiment();
+  }, [symbol]);
 
-  // Chart rendering
+  // --- 2. Chart Logic ---
   useEffect(() => {
     if (!data?.rows) return;
     const renderChart = () => {
@@ -99,32 +208,64 @@ export default function StockInfo() {
 
       if (window.stockChart) window.stockChart.destroy();
 
-      const labels = data.rows.slice(-10).map((r) => r.timestamp.split("T")[0]);
-      const closePrices = data.rows.slice(-10).map((r) => r.close);
+      const recentRows = data.rows.slice(-30);
+      const labels = recentRows.map((r) => r.timestamp.split("T")[0]);
+      const closePrices = recentRows.map((r) => r.close);
+      const lastDateStr = labels[labels.length - 1];
+
+      let predictionPoint = [];
+      let predictionLabels = [];
+
+      if (analysis && analysis.prediction && analysis.prediction.next_day_price) {
+        const predPrice = analysis.prediction.next_day_price;
+        
+        const lastDate = new Date(lastDateStr);
+        const nextDate = new Date(lastDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        if (nextDate.getDay() === 6) nextDate.setDate(nextDate.getDate() + 2); 
+        if (nextDate.getDay() === 0) nextDate.setDate(nextDate.getDate() + 1);
+        
+        const nextDateString = nextDate.toISOString().split('T')[0];
+
+        predictionPoint = new Array(closePrices.length).fill(null);
+        predictionPoint.push(predPrice);
+        
+        predictionLabels = [...labels, "Forecast (" + nextDateString + ")"];
+      } else {
+        predictionLabels = labels;
+      }
 
       const isDarkMode = document.documentElement.classList.contains("dark");
       const styles = getComputedStyle(document.documentElement);
-      const primaryColor = isDarkMode
-        ? "#a78bfa"
-        : styles.getPropertyValue("--color-primary").trim() || "#4f46e5";
-      const surfaceColor = isDarkMode
-        ? "rgba(167,139,250,0.15)"
-        : "rgba(79,70,229,0.1)";
+      const primaryColor = isDarkMode ? "#a78bfa" : styles.getPropertyValue("--color-primary").trim() || "#4f46e5";
+      const surfaceColor = isDarkMode ? "rgba(167,139,250,0.15)" : "rgba(79,70,229,0.1)";
       const textColor = isDarkMode ? "#e5e7eb" : "#111827";
       const gridColor = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+      const predictionColor = "#f59e0b"; 
 
       window.stockChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels,
+          labels: predictionLabels,
           datasets: [
             {
-              label: `${symbol} Closing Prices`,
+              label: `History`,
               data: closePrices,
               borderColor: primaryColor,
               backgroundColor: surfaceColor,
               tension: 0.3,
               fill: true,
+              pointRadius: 2,
+            },
+            {
+              label: `AI Forecast`,
+              data: predictionPoint,
+              borderColor: predictionColor,
+              backgroundColor: predictionColor,
+              pointStyle: 'star',
+              pointRadius: 8, 
+              borderWidth: 2,
+              showLine: false, 
             },
           ],
         },
@@ -145,7 +286,97 @@ export default function StockInfo() {
     return () => {
       if (window.stockChart) window.stockChart.destroy();
     };
-  }, [data, symbol]);
+  }, [data, symbol, analysis]);
+
+  // --- 3. Analysis Layout ---
+  const StockAnalysis = () => {
+  if (isAnalysisLoading || isSentimentLoading) { 
+    return <div className="analysis-loading">Loading AI analysis...</div>;
+  }
+  if (!analysis && !sentiment) { // Check for both missing data
+    return null; 
+  }
+
+  const { prediction, risk } = analysis || {}; // Use optional chaining for safety
+  const currentClose = data?.rows.slice(-1)[0]?.close;
+  const gaugeVal = prediction?.gauge_score ?? 50;
+
+  // Helper function to color the sentiment text
+  const getSentimentColor = (pred) => {
+    if (pred === 'Bullish') return 'positive';
+    if (pred === 'Bearish') return 'negative';
+    return 'neutral';
+  };
+
+    return (
+      <div className="stock-analysis-container">
+        {/* Card 1: Historical Risk */}
+        <div className="analysis-card">
+          <h3 className="analysis-title">Historical Risk</h3>
+          <div className="analysis-row">
+            <span>Volatility:</span>
+            <span className={`risk-badge risk-${risk.volatility?.toLowerCase()}`}>
+              {risk.volatility}
+            </span>
+          </div>
+          <div className="analysis-row">
+            <span>Beta (vs. SPY):</span>
+            <strong>{risk.beta}</strong>
+          </div>
+          <small>Based on past 1 year behavior.</small>
+        </div>
+
+         {/* Card 2: AI Price Prediction */}
+         <div className="analysis-card">
+          <h3 className="analysis-title">AI Price Forecast</h3>
+          <div className="analysis-row">
+            <span>Next Close:</span>
+            <strong className="prediction-price">
+              ${prediction.next_day_price ? prediction.next_day_price.toFixed(2) : 'N/A'}
+            </strong>
+          </div>
+          {currentClose && prediction.next_day_price && (
+             <p className={`prediction-diff ${prediction.next_day_price > currentClose ? "positive" : "negative"}`}>
+              {prediction.next_day_price > currentClose ? "▲" : "▼"} from ${currentClose.toFixed(2)}
+             </p>
+          )}
+          <small>RNN Model prediction. Not financial advice.</small>
+        </div>
+        
+        {/* Card 3: Signal Gauge */}
+        <div className="analysis-card gauge-card">
+          <h3 className="analysis-title" style={{marginBottom: '0.5rem', border: 'none'}}>Signal Strength</h3>
+          
+          {/* Using the new SVG Component */}
+          <RiskGauge probability={gaugeVal} />
+          
+          <small style={{textAlign: 'center', marginTop: 0}}>
+             Predicted move intensity
+          </small>
+        </div>
+        {/* --- NEW: Linear Trend Sentiment Card --- */}
+        {sentiment && (
+          <div className="analysis-card">
+            <h3 className="analysis-title">Price Trend Sentiment</h3>
+            <div className="analysis-row">
+              <span>Sentiment:</span>
+              <strong className={`sentiment-badge ${getSentimentColor(sentiment.prediction)}`}>
+                {sentiment.prediction}
+              </strong>
+            </div>
+            <div className="analysis-row">
+              <span>Trend Score:</span>
+              <strong>{sentiment.score}</strong>
+            </div>
+            <small>{sentiment.message}</small>
+          </div>
+        )}
+        {/* ------------------------------------- */}
+        
+       
+      </div>
+    );
+  };
 
   if (err) return <div className="error-text">Error: {err}</div>;
   if (!data) return <div className="loading-text">Loading...</div>;
@@ -167,7 +398,8 @@ export default function StockInfo() {
       <button className="watchlist-btn" onClick={handleWatchlistToggle}>
         {isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
       </button>
-      {/* {message && <p className="watchlist-message">{message}</p>} */}
+      
+      <StockAnalysis />
 
       <div className="table-container">
         <table className="stock-table">
