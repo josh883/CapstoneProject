@@ -2,16 +2,16 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: 20px;
+  padding: 4px 0px;
   position: relative;
   z-index: 50;
 }
 
 .theme-toggle,
 .profile-btn {
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 9999px;
   background-color: var(--color-surface);
   border: 2px solid var(--color-border);
@@ -148,6 +148,13 @@ html.dark .profile-dropdown-header {
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+html:not(.dark) .cancel-btn:hover{
+  background-color: var(--color-primary-light); 
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .form-message {
