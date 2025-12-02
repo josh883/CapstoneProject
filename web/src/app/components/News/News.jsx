@@ -10,7 +10,7 @@ export default function News() {
   useEffect(() => {
     async function fetchNews() {
       try {
-        const res = await fetch(buildApiUrl("/api/news"));
+        const res = await fetch(buildApiUrl("/news")); // REMOVE '/api' 
         const data = await res.json();
         setArticles(data.articles || []);
       } catch (e) {

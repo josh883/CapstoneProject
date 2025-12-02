@@ -75,6 +75,9 @@ export default function StockInfo() {
   const [search, setSearch] = useState("");
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   
+// Sentiment State
+  const [sentiment, setSentiment] = useState(null);
+  const [isSentimentLoading, setIsSentimentLoading] = useState(true);
   // Analysis State
   const [analysis, setAnalysis] = useState(null);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(true);
@@ -88,6 +91,7 @@ export default function StockInfo() {
       if (storedUser) setUsername(storedUser);
     }
   }, []);
+  
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -172,6 +176,28 @@ export default function StockInfo() {
       // ignore error
     }
   };
+  // --- 1. Sentiment Fetching Logic ---
+  useEffect(() => {
+    async function fetchSentiment() {
+      if (!symbol) return;
+      setIsSentimentLoading(true);
+      try {
+        // NOTE: This uses the new FastAPI endpoint you created: /sentiment/{symbol}
+        const res = await fetch(buildApiUrl(`/sentiment/${symbol.toUpperCase()}`));
+        const json = await res.json();
+        
+        if (!res.ok) throw new Error(json.detail || "Sentiment fetch error");
+        
+        setSentiment(json);
+      } catch (e) {
+        console.error("Failed to fetch sentiment", e);
+        setSentiment(null);
+      } finally {
+        setIsSentimentLoading(false);
+      }
+    }
+    fetchSentiment();
+  }, [symbol]);
 
   // --- 2. Chart Logic ---
   useEffect(() => {
@@ -264,16 +290,23 @@ export default function StockInfo() {
 
   // --- 3. Analysis Layout ---
   const StockAnalysis = () => {
-    if (isAnalysisLoading) {
-      return <div className="analysis-loading">Loading AI analysis...</div>;
-    }
-    if (!analysis) {
-      return null; 
-    }
+  if (isAnalysisLoading || isSentimentLoading) { 
+    return <div className="analysis-loading">Loading AI analysis...</div>;
+  }
+  if (!analysis && !sentiment) { // Check for both missing data
+    return null; 
+  }
 
-    const { prediction, risk } = analysis;
-    const currentClose = data?.rows.slice(-1)[0]?.close;
-    const gaugeVal = prediction.gauge_score ?? 50; 
+  const { prediction, risk } = analysis || {}; // Use optional chaining for safety
+  const currentClose = data?.rows.slice(-1)[0]?.close;
+  const gaugeVal = prediction?.gauge_score ?? 50;
+
+  // Helper function to color the sentiment text
+  const getSentimentColor = (pred) => {
+    if (pred === 'Bullish') return 'positive';
+    if (pred === 'Bearish') return 'negative';
+    return 'neutral';
+  };
 
     return (
       <div className="stock-analysis-container">
@@ -321,6 +354,26 @@ export default function StockInfo() {
              Predicted move intensity
           </small>
         </div>
+        {/* --- NEW: Linear Trend Sentiment Card --- */}
+        {sentiment && (
+          <div className="analysis-card">
+            <h3 className="analysis-title">Price Trend Sentiment</h3>
+            <div className="analysis-row">
+              <span>Sentiment:</span>
+              <strong className={`sentiment-badge ${getSentimentColor(sentiment.prediction)}`}>
+                {sentiment.prediction}
+              </strong>
+            </div>
+            <div className="analysis-row">
+              <span>Trend Score:</span>
+              <strong>{sentiment.score}</strong>
+            </div>
+            <small>{sentiment.message}</small>
+          </div>
+        )}
+        {/* ------------------------------------- */}
+        
+       
       </div>
     );
   };

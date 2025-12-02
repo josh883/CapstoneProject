@@ -17,12 +17,15 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from server.tasks import run_weekly_training
 
 # --- NEW: Import the Analysis logic ---
+# NOTE: The assumption is that 'get_sentiment_analysis' maps to your 
+# 'predict_linear_trend_sentiment' function in server/analysis.
 from server.analysis import (
     load_prediction_model, 
     get_prediction, 
     calculate_historical_volatility, 
     calculate_beta,
-    calculate_gauge_score # Added for the gauge
+    calculate_gauge_score,
+    get_sentiment_analysis # <--- ENSURE THIS IS NOW LISTED
 )
 
 # --- Define Static Directory and ensure it exists ---
@@ -40,8 +43,11 @@ DEFAULT_ORIGIN_REGEX = (
 def build_allowed_origins():
     base_origins = {
         "http://localhost:3000",
+        "http://localhost:3001", 
+        "http://localhost:3002",
         "http://127.0.0.1:3000",
         "http://172.24.141.32:3000", # your network IP
+        "http://127.0.0.1:3002",   # another localhost port
     }
 
     extra_origins = os.getenv("FRONTEND_ORIGINS", "")
@@ -121,9 +127,32 @@ def prices(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/api/news")
+@app.get("/news")
 def news(ticker: str = Query(None)):
     return {"articles": get_news(ticker)}
+
+# --- NEW: Sentiment Analysis Endpoint ---
+@app.get("/sentiment/{symbol}")
+async def sentiment(symbol: str):
+    """
+    Retrieves the last 10 days of daily price data and performs linear trend sentiment analysis.
+    """
+    symbol = symbol.upper()
+    
+    # 1. Fetch the necessary data using the existing price function
+    # NOTE: The analysis requires price data rows, so we use the daily function.
+    try:
+        # get_prices is used to fetch the raw data, which we then pass to the analysis function
+        stock_data = get_prices(function="TIME_SERIES_DAILY", symbol=symbol)
+    except Exception as e:
+        # If price fetching fails, we can't perform the analysis
+        raise HTTPException(status_code=404, detail=f"Could not fetch daily price data for {symbol}: {e}")
+
+    # 2. Run the sentiment analysis logic
+    sentiment_result = get_sentiment_analysis(stock_data)
+
+    # 3. Return the result
+    return sentiment_result
 
 # --- NEW: Analysis Endpoint ---
 @app.get("/analysis/{symbol}")
@@ -170,8 +199,8 @@ async def get_analysis(symbol: str):
 
 # --- Risk Gauge Endpoint ---
 @app.get("/v1/api/risk_gauge/{probability}", 
-         response_class=FileResponse, 
-         tags=["analysis"])
+          response_class=FileResponse, 
+          tags=["analysis"])
 async def get_risk_gauge(probability: float):
     """
     Generates and returns the circular risk gauge diagram based on prediction probability.

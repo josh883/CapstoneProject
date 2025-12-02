@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from server.api_data_fetch import get_prices
 from tensorflow.keras.models import load_model
+from .sentiment_linear_trend import predict_linear_trend_sentiment as get_sentiment_analysis
 import joblib
 import os
 

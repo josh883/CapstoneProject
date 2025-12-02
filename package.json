@@ -5,7 +5,7 @@
         "check:node": "node -e \"const v=parseInt(process.versions.node.split('.')[0]); if(v<18){console.error('Node 18+ required. Current:',process.versions.node); process.exit(1)}\"",
         "setup": "node setup.js",
         "dev:web": "npm --prefix web run dev",
-        "dev:api": "capstone_venv/bin/python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000",
+        "dev:api": ".\\capstone_venv\\Scripts\\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000",
         "dev": "npm run check:node && concurrently -k -n WEB,API -c auto \"npm run dev:web\" \"npm run dev:api\""
     },
     "devDependencies": {
