@@ -83,5 +83,33 @@ def init_db():
                     ON portfolio_trades (username, executed_at DESC)
                     """
                 )
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS user_settings (
+                        username TEXT PRIMARY KEY
+                            REFERENCES users(username)
+                            ON DELETE CASCADE,
+
+                        -- Algorithm toggles
+                        enable_ai_prediction   BOOLEAN NOT NULL DEFAULT TRUE,
+                        enable_trend_sentiment BOOLEAN NOT NULL DEFAULT TRUE,
+                        enable_golden_cross    BOOLEAN NOT NULL DEFAULT TRUE,
+                        enable_volatility      BOOLEAN NOT NULL DEFAULT TRUE,
+                        enable_beta            BOOLEAN NOT NULL DEFAULT TRUE,
+                        enable_signal_gauge    BOOLEAN NOT NULL DEFAULT TRUE,
+
+                        -- Sliders / numeric tuning
+                        risk_sensitivity   INTEGER NOT NULL DEFAULT 50,
+                        prediction_weight  INTEGER NOT NULL DEFAULT 50,
+                        smoothing_factor   INTEGER NOT NULL DEFAULT 30,
+                        chart_history_days INTEGER NOT NULL DEFAULT 30,
+
+                        -- Display toggles (only 2 like you asked)
+                        show_chart_fill        BOOLEAN NOT NULL DEFAULT TRUE,
+                        show_prediction_marker BOOLEAN NOT NULL DEFAULT TRUE
+                    );
+                    """
+                )
+
     finally:
         conn.close()

@@ -102,3 +102,27 @@ html.dark .news-summary {
 html.dark .news-source {
   color: var(--color-text-secondary);
 }
+
+.news-sentiment {
+  display: inline-block;
+  padding: 4px 8px;
+  margin-top: 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sentiment-bullish {
+  background-color: rgba(16,185,129,0.12);
+  color: #10b981;
+}
+
+.sentiment-bearish {
+  background-color: rgba(239,68,68,0.12);
+  color: #ef4444;
+}
+
+.sentiment-neutral {
+  background-color: rgba(107,114,128,0.08);
+  color: #6b7280;
+}

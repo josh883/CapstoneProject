@@ -307,5 +307,63 @@ def main():
     except Exception as e:
         print("intraday demo failed:", e)
 
+# ---------------------- SMA + Golden/Death Cross ---------------------- #
+
+def get_sma(symbol: str, time_period: int, interval: str = "daily", series_type: str = "close") -> Dict[str, Any]:
+    """
+    Fetches SMA data from Alpha Vantage.
+    Returns: {"meta": {...}, "rows": [ {timestamp, sma}, ... ]}
+    """
+
+    url = (
+        "https://www.alphavantage.co/query?"
+        f"function=SMA&symbol={symbol}&interval={interval}"
+        f"&time_period={time_period}&series_type={series_type}&apikey={API_KEYS[0]}"
+    )
+
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    data = r.json()
+
+    if "Technical Analysis: SMA" not in data:
+        raise RuntimeError(f"SMA fetch failed for {symbol}: {data.get('Note') or data.get('Error Message')}")
+
+    meta = data["Meta Data"]
+    sma_series = data["Technical Analysis: SMA"]
+
+    rows = []
+    for date_str, values in sma_series.items():
+        sma_val = float(values["SMA"])
+        rows.append({
+            "timestamp": datetime.strptime(date_str, "%Y-%m-%d"),
+            "sma": sma_val,
+        })
+
+    rows.sort(key=lambda x: x["timestamp"])
+    return {"meta": meta, "rows": rows}
+
+
+
+def analyze_cross(symbol: str) -> str:
+    """
+    Compares 20-day and 80-day SMA to determine Golden or Death Cross.
+    """
+    sma20 = get_sma(symbol, 20)
+    sma80 = get_sma(symbol, 80)
+
+    if not sma20["rows"] or not sma80["rows"]:
+        return "Not enough SMA data"
+
+    latest20 = sma20["rows"][-1]["sma"]
+    latest80 = sma80["rows"][-1]["sma"]
+
+    if latest20 > latest80:
+        return "This stock is currently in a Golden Cross"
+    elif latest20 < latest80:
+        return "This stock is currently in a Death Cross"
+    else:
+        return "The stock’s SMAs are equal (neutral)"
+
+
 if __name__ == "__main__":
     main()

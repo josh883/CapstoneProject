@@ -138,3 +138,13 @@ html.dark .stock-card:hover {
     height: 55px;
   }
 }
+
+.caption-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+html.dark .caption-text {
+  color: var(--color-text-secondary);
+}

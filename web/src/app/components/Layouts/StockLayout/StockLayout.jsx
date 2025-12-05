@@ -13,13 +13,12 @@ export default function StockLayout() {
 
       <div className="stock-main-content">
         <SearchBar />
-        {/* RiskGaugeDisplay removed to fix error and duplication */}
         <StockInfo />
       </div>
 
       <div className="stock-right-panel">
         <Profile />
-        <News />
+        <News symbolFromPage />
       </div>
     </div>
   );

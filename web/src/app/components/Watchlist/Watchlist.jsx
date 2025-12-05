@@ -6,32 +6,40 @@ import "./Watchlist.css";
 
 export default function Watchlist() {
   const [watchlist, setWatchlist] = useState([]);
+  const [gainers, setGainers] = useState([]);
+  const [actives, setActives] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const trendingStocks = ["NVDA", "TSLA", "AAPL", "META", "AMZN", "GOOG"];
-  const otherStocks = ["SHOP", "UBER", "NFLX", "MSFT", "DIS", "AMD"];
-
   useEffect(() => {
-    async function fetchWatchlist() {
+    async function loadData() {
       try {
-        const res = await fetch(buildApiUrl(`/watchlist`), { credentials: "include" });
-        const data = await res.json();
-        if (res.ok) setWatchlist(data.watchlist || []);
+        const wlRes = await fetch(buildApiUrl(`/watchlist`), { credentials: "include" });
+        const wlData = await wlRes.json();
+        if (wlRes.ok) setWatchlist(wlData.watchlist || []);
+
+        const recRes = await fetch(buildApiUrl(`/recommendations`), { credentials: "include" });
+        const recData = await recRes.json();
+        if (recRes.ok) {
+          setGainers(recData.gainers || []);
+          setActives(recData.actives || []);
+        }
       } catch {
         setWatchlist([]);
+        setGainers([]);
+        setActives([]);
       } finally {
         setLoading(false);
       }
     }
-    fetchWatchlist();
+    loadData();
   }, []);
 
   const handleClick = (ticker) => {
     router.push(`/stock/${ticker}`);
   };
 
-  const renderSection = (title, stocks, emptyText) => (
+  const renderSection = (title, stocks, emptyText, caption) => (
     <div className="watchlist-section-card">
       <h2 className="section-title">{title}</h2>
       <div className="stock-row">
@@ -44,7 +52,8 @@ export default function Watchlist() {
                 src={`https://financialmodelingprep.com/image-stock/${ticker}.png`}
                 alt={`${ticker} logo`}
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/80?text=Stock";
+                  e.target.onerror = null;
+                  e.target.src = `https://via.placeholder.com/80/1f2937/ffffff?text=${ticker}`;
                 }}
               />
               <p>{ticker}</p>
@@ -52,6 +61,7 @@ export default function Watchlist() {
           ))
         )}
       </div>
+      <p className="caption-text">{caption}</p>
     </div>
   );
 
@@ -61,9 +71,21 @@ export default function Watchlist() {
         <p>Loading...</p>
       ) : (
         <>
-          {renderSection("Your Watchlist", watchlist, "No stocks in your watchlist yet.")}
-          {renderSection("Hot Right Now", trendingStocks, "No trending data.")}
-          {renderSection("Suggested Stocks", otherStocks, "No suggestions yet.")}
+          {renderSection("Your Watchlist", watchlist, "No stocks in your watchlist yet.", "Your saved stocks.")}
+
+          {renderSection(
+            "Top Gainers",
+            gainers,
+            "No gainer data.",
+            "Top daily percentage gainers from US markets."
+          )}
+
+          {renderSection(
+            "Most Active",
+            actives,
+            "No active data.",
+            "Most actively traded tickers by daily volume."
+          )}
         </>
       )}
     </div>

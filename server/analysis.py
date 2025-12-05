@@ -5,6 +5,8 @@ from tensorflow.keras.models import load_model
 from .sentiment_linear_trend import predict_linear_trend_sentiment as get_sentiment_analysis
 import joblib
 import os
+from typing import Optional, Union
+
 
 # --- Constants ---
 # We use the paths where the training script saved them
@@ -29,7 +31,7 @@ def load_prediction_model():
         return None, None
 
 # --- Prediction Function ---
-def get_prediction(symbol: str, model, scaler) -> float | None:
+def get_prediction(symbol: str, model, scaler) -> Optional[float]:
     """Predicts the next day's closing price for a symbol."""
     if model is None or scaler is None:
         return None
@@ -102,7 +104,7 @@ def calculate_historical_volatility(symbol: str) -> str:
         print(f"Error calculating volatility for {symbol}: {e}")
         return "Error"
 
-def calculate_beta(symbol: str, market_symbol: str = "SPY") -> float | str:
+def calculate_beta(symbol: str, market_symbol: str = "SPY") -> Union[float, str]:
     """Calculates Beta (volatility relative to the market)."""
     try:
         stock_returns = _get_daily_returns(symbol)
