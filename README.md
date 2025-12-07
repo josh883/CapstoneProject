@@ -2,7 +2,7 @@
 
 > **A Next-Gen Financial Analytics Dashboard powered by Machine Learning.**
 
-![Pennysworthe Dashboard](docs/dashboard-main.jpg)
+![Pennysworthe Dashboard](docs/dashboard-main.png)
 
 ##  Project Overview
 
@@ -35,7 +35,7 @@ A custom-built visualization engine that translates complex volatility metrics i
 
 One of Pennysworthe's standout features is the ability for users to "look under the hood." The application allows users to toggle specific analysis modules and fine-tune the sensitivity of the risk algorithms.
 
-![Settings and Customization](docs/settings-page.jpg)
+![Settings and Customization](docs/settings-page.png)
 
 * **Custom Sensitivity:** Users can adjust risk thresholds (e.g., Volatility sensitivity) to match their personal trading style.
 * **Modular Architecture:** Each analysis block (Golden Cross, Trend Sentiment, AI Prediction) can be enabled or disabled independently.
