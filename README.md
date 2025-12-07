@@ -4,7 +4,7 @@
 
 ![Pennysworthe Dashboard](docs/dashboard-main.jpg)
 
-## 🚀 Project Overview
+##  Project Overview
 
 Pennysworthe is a full-stack financial application designed to democratize institutional-grade stock analysis. It moves beyond simple price tracking by integrating **AI-driven price forecasting**, **algorithmic risk assessment**, and **sentiment analysis** directly into the user interface.
 
@@ -12,19 +12,19 @@ Unlike traditional dashboards that simply display raw data, Pennysworthe interpr
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🤖 AI-Powered Price Prediction
+###  AI-Powered Price Prediction
 Utilization of a **Long Short-Term Memory (LSTM) Recurrent Neural Network (RNN)** to analyze historical market data.
 * **Automated Retraining:** The model automatically retrains itself on new data every 24 hours via a background scheduler, ensuring predictions stay relevant.
 * **Visual Forecasting:** Predictions are plotted directly onto the price chart (indicated by the orange star), allowing users to visually compare historical trends vs. AI expectations.
 
-### 📊 Algorithmic Risk Gauge
+###  Algorithmic Risk Gauge
 A custom-built visualization engine that translates complex volatility metrics into an easy-to-read gauge.
 * **Real-time Calculation:** Computes volatility and Beta relative to the S&P 500 on the fly using live market data.
 * **Dynamic UI:** Features a custom SVG gauge component that animates based on the AI's confidence score.
 
-### 📉 Interactive Market Data
+###  Interactive Market Data
 * **Real-time Charts:** Interactive, responsive line charts powered by Chart.js.
 * **Smart Watchlists:** Users can curate personalized lists of stocks to track favorite assets.
 * **News Sentiment:** Integrated news feed that correlates market movements with recent headlines.
@@ -42,7 +42,7 @@ One of Pennysworthe's standout features is the ability for users to "look under 
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Frontend:**
 * **Framework:** Next.js 15 (React)
@@ -57,7 +57,7 @@ One of Pennysworthe's standout features is the ability for users to "look under 
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 The application uses a decoupled architecture for scalability and performance:
 1.  The **Next.js** frontend serves as a responsive client, handling UI state and visualization.
@@ -67,7 +67,7 @@ The application uses a decoupled architecture for scalability and performance:
 
 ---
 
-## 💻 Technical Setup & Installation
+##  Technical Setup & Installation
 
 ### Prerequisites
 Install these once:
