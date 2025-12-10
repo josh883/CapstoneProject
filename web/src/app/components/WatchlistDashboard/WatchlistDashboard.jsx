@@ -1,15 +1,28 @@
 "use client";
+"use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { buildApiUrl } from "../../lib/apiClient";
 import "./WatchlistDashboard.css";
 
-export default function WatchlistDash() {
-  const [watchlist, setWatchlist] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function WatchlistDash({ watchlist: providedWatchlist, loading: loadingProp }) {
+  const shouldFetch = providedWatchlist === undefined;
+  const [watchlist, setWatchlist] = useState(providedWatchlist ?? []);
+  const [loading, setLoading] = useState(
+    shouldFetch ? true : Boolean(loadingProp)
+  );
   const router = useRouter();
 
   useEffect(() => {
+    if (providedWatchlist !== undefined) {
+      setWatchlist(providedWatchlist || []);
+      setLoading(Boolean(loadingProp));
+    }
+  }, [providedWatchlist, loadingProp]);
+
+  useEffect(() => {
+    if (!shouldFetch) return;
+
     async function fetchWatchlist() {
       try {
         const res = await fetch(buildApiUrl(`/watchlist`), { credentials: "include" });
@@ -22,7 +35,7 @@ export default function WatchlistDash() {
       }
     }
     fetchWatchlist();
-  }, []);
+  }, [shouldFetch]);
 
   const handleClick = (ticker) => {
     router.push(`/stock/${ticker}`);
