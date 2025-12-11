@@ -1,4 +1,4 @@
-# Capstone Project
+# Capstone Project PennysWorthe
 
 > **A Next-Gen Financial Analytics Dashboard powered by Machine Learning.**
 
