@@ -759,7 +759,7 @@ export default function StockInfo() {
 
       <div className="chart-container">
         <canvas id="priceChart" width="700" height="400"></canvas>
-      </div>
-    </div>
+      </div> 
+    </div>   
   );
 }

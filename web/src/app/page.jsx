@@ -37,6 +37,8 @@ export default function LandingPage() {
         >
           Get Started
         </button>
+        <p className="text-[var(--color-text-secondary)] max-w-xl mb-8">
+          🚨This is not financial advice.</p>
       </main>
 
       {/* Footer */}
