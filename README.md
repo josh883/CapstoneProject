@@ -4,30 +4,47 @@
 
 ![Pennysworthe Dashboard](Docs/dashboard-main.png)
 
-##  Project Overview
+## 📖 Project Overview
 
 Pennysworthe is a full-stack financial application designed to democratize institutional-grade stock analysis. It moves beyond simple price tracking by integrating **AI-driven price forecasting**, **algorithmic risk assessment**, and **sentiment analysis** directly into the user interface.
 
 Unlike traditional dashboards that simply display raw data, Pennysworthe interprets it—giving users actionable insights on market volatility, predicted trends, and moving averages through an intuitive, modern interface.
 
+The project began as a concept to aid both experienced and inexperienced investors, evolving through rigorous Agile sprints into a comprehensive tool.
+
 ---
 
-##  Key Features
+## 👥 Meet the Team
 
-###  AI-Powered Price Prediction
+Throughout the development process, the team maintained strong cohesion, with each member owning specific architectural domains.
+
+* **JD (Networking & Infrastructure):** Managed networking, hosting, and ensuring the application ran across multiple machines. He led the debugging of networking issues and implemented the portfolio page and settings architecture.
+* **Luis (Frontend Lead):** Built the bulk of the web application's frontend. He managed the migration to React, implemented the stock graphs, and integrated the News API for the right-hand display.
+* **Erick (AI & Machine Learning):** Focused on the application of AI, specifically implementing the LSTM models and porting them to the app. He also developed the "Risk Tolerance" and "Accuracy" fidgets/widgets.
+* **Josh (Algorithms & Backend):** Developed the Bullish/Bearish algorithms and Sentiment Calculation. He assisted heavily with Windows compatibility debugging and initial HTML prototyping.
+* **Clara (Algorithms & User Research):** Conducted user and professor interviews to determine high-value features. She implemented the Golden Cross and Death Cross calculation algorithms.
+
+---
+
+## 🚀 Key Features
+
+### 🧠 AI-Powered Price Prediction
 Utilization of a **Long Short-Term Memory (LSTM) Recurrent Neural Network (RNN)** to analyze historical market data.
-* **Automated Retraining:** The model automatically retrains itself on new data every 24 hours via a background scheduler, ensuring predictions stay relevant.
-* **Visual Forecasting:** Predictions are plotted directly onto the price chart (indicated by the orange star), allowing users to visually compare historical trends vs. AI expectations.
+* **Automated Retraining:** The model automatically retrains itself on new data every 24 hours via a background scheduler.
+* **Visual Forecasting:** Predictions are plotted directly onto the price chart, allowing users to visually compare historical trends vs. AI expectations.
+* **Accuracy Fidgets:** Specific UI elements dedicated to showing the model's confidence and past accuracy.
 
-###  Algorithmic Risk Gauge
-A custom-built visualization engine that translates complex volatility metrics into an easy-to-read gauge.
-* **Real-time Calculation:** Computes volatility and Beta relative to the S&P 500 on the fly using live market data.
-* **Dynamic UI:** Features a custom SVG gauge component that animates based on the AI's confidence score.
+### 📊 Algorithmic Risk & Strategy
+A suite of 6 custom algorithms integrated directly into the stock search page.
+* **Market Sentiment:** Algorithms to detect if a stock is currently Bearish or Bullish.
+* **Crossover Detection:** Automatic identification of "Golden Cross" and "Death Cross" events to signal strong trend reversals.
+* **Risk Tolerance:** A dynamic "fidget" that gauges the risk level of an asset based on volatility and Beta.
 
-###  Interactive Market Data
+### 🖥️ Interactive Market Data
 * **Real-time Charts:** Interactive, responsive line charts powered by Chart.js.
+* **News Integration:** A dedicated sidebar displaying news sources via API to correlate current events with price action.
 * **Smart Watchlists:** Users can curate personalized lists of stocks to track favorite assets.
-* **News Sentiment:** Integrated news feed that correlates market movements with recent headlines.
+* **Portfolio Management:** A dedicated page for users to input and track their personal trading information.
 
 ---
 
@@ -42,7 +59,18 @@ One of Pennysworthe's standout features is the ability for users to "look under 
 
 ---
 
-##  Tech Stack
+## 📅 Development Journey
+
+The project evolved through a series of productive sprints:
+1.  **Inception:** Started with a basic HTML frontend and Python API connections while conducting user research with professors.
+2.  **Overhaul:** Transitioned the frontend to React (Next.js) for better scalability and implemented secure database logins.
+3.  **Expansion:** Debugged critical networking issues and Windows-specific bugs while laying the groundwork for complex algorithms like the Golden Cross.
+4.  **Feature Richness:** The most productive sprint; added the Portfolio page, Watchlists, and the News API integration.
+5.  **Final Polish:** Integrated all 6 algorithms, the AI accuracy widgets, and the settings page for a complete user experience.
+
+---
+
+## 🏗️ Tech Stack
 
 **Frontend:**
 * **Framework:** Next.js 15 (React)
@@ -57,7 +85,7 @@ One of Pennysworthe's standout features is the ability for users to "look under 
 
 ---
 
-##  Architecture
+## 🧩 Architecture
 
 The application uses a decoupled architecture for scalability and performance:
 1.  The **Next.js** frontend serves as a responsive client, handling UI state and visualization.
@@ -67,7 +95,21 @@ The application uses a decoupled architecture for scalability and performance:
 
 ---
 
-##  Technical Setup & Installation
+## 🔮 Challenges & Future Roadmap
+
+**Challenges Overcome:**
+* **Cross-Platform Compatibility:** Significant effort went into fixing bugs for Windows users to ensure consistent behavior across operating systems.
+* **Networking:** Configuring the application to run seamlessly on multiple machines and host environments required extensive debugging.
+* **API Limitations:** The current biggest hurdle is the request limits on our financial data provider, which we optimize by caching data where possible.
+
+**Future Plans:**
+* **Standalone Platform:** We plan to migrate this project to a fully hosted, independent website.
+* **Frontend Expansion:** Continued overhaul and expansion of the UI to include more data visualization tabs.
+* **Monetization:** Exploring the addition of advertisements to sustain server costs and API tiers.
+
+---
+
+## 🛠️ Technical Setup & Installation
 
 ### Prerequisites
 Install these once:
@@ -113,7 +155,6 @@ After installing Postgres, make sure you can run `psql`:
    ALTER ROLE capstone_user SET search_path TO public;
    \q
    *(use whatever for username and password)*
-
 3. **setup the env file**
    - open `.env` (created during step 1) and set:
      ```
