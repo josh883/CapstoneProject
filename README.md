@@ -19,7 +19,7 @@ The project began as a concept to aid both experienced and inexperienced investo
 Throughout the development process, the team maintained strong cohesion, with each member owning specific architectural domains.
 
 * **JD (Networking & Infrastructure):** Managed networking, hosting, and ensuring the application ran across multiple machines. He led the debugging of networking issues and implemented the portfolio page and settings architecture.
-* **Luis (Frontend Lead):** Built the bulk of the web application's frontend. He managed the migration to React, implemented the stock graphs, and integrated the News API for the right-hand display.
+* **Luis (Frontend Lead):** Built the bulk of the web application's frontend. He managed the migration to Next.js, implemented the stock graphs, and integrated the News API for the right-hand display.
 * **Erick (AI & Machine Learning):** Focused on the application of AI, specifically implementing the LSTM models and porting them to the app. He also developed the "Risk Tolerance" and "Accuracy" fidgets/widgets.
 * **Josh (Algorithms & Backend):** Developed the Bullish/Bearish algorithms and Sentiment Calculation. He assisted heavily with Windows compatibility debugging and initial HTML prototyping.
 * **Clara (Algorithms & User Research):** Conducted user and professor interviews to determine high-value features. She implemented the Golden Cross and Death Cross calculation algorithms.
@@ -63,7 +63,7 @@ One of Pennysworthe's standout features is the ability for users to "look under 
 
 The project evolved through a series of productive sprints:
 1.  **Inception:** Started with a basic HTML frontend and Python API connections while conducting user research with professors.
-2.  **Overhaul:** Transitioned the frontend to React (Next.js) for better scalability and implemented secure database logins.
+2.  **Overhaul:** Transitioned the frontend to Next.js for better scalability and implemented secure database logins.
 3.  **Expansion:** Debugged critical networking issues and Windows-specific bugs while laying the groundwork for complex algorithms like the Golden Cross.
 4.  **Feature Richness:** The most productive sprint; added the Portfolio page, Watchlists, and the News API integration.
 5.  **Final Polish:** Integrated all 6 algorithms, the AI accuracy widgets, and the settings page for a complete user experience.
@@ -73,7 +73,7 @@ The project evolved through a series of productive sprints:
 ## 🏗️ Tech Stack
 
 **Frontend:**
-* **Framework:** Next.js 15 (React)
+* **Framework:** Next.js 15
 * **Styling:** Tailwind CSS & Custom CSS Modules
 * **Visualization:** Chart.js, Custom SVG Components
 
